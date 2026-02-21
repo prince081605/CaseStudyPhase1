@@ -1,32 +1,21 @@
 package com.example.casestudy.ui.screens
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Event
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -40,7 +29,6 @@ fun TasksScreen(navController: NavController) {
         "Mobile Dev Activity – Feb 10"
     )
 
-    // Theme Colors
     val blackBg = Color(0xFF0F0F0F)
     val darkCard = Color(0xFF1A1A1A)
     val cyan = Color(0xFF00BCD4)
@@ -49,52 +37,96 @@ fun TasksScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Academic Tasks", color = white) },
+                title = { Text("Academic Tasks", color = white) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = white
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = white)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
             )
-        }
+        },
+        containerColor = blackBg
     ) { paddingValues ->
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(blackBg)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = darkCard),
-                elevation = CardDefaults.cardElevation(8.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
+                        )
+                    )
+            )
+
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawCircle(Color(0xFF00BCD4).copy(alpha = 0.08f), 150f, Offset(size.width * 0.2f, size.height * 0.15f))
+                drawCircle(Color(0xFF00BCD4).copy(alpha = 0.06f), 200f, Offset(size.width * 0.8f, size.height * 0.3f))
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Column(modifier = Modifier.padding(24.dp)) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = darkCard),
+                    elevation = CardDefaults.cardElevation(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(24.dp)) {
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Event, contentDescription = null, tint = cyan)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Upcoming Tasks", style = MaterialTheme.typography.titleMedium, color = cyan)
-                    }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Event, contentDescription = null, tint = cyan)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Upcoming Tasks", style = MaterialTheme.typography.titleMedium, color = cyan)
+                        }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    tasks.forEach {
-                        Text("• $it", color = white)
-                        Spacer(modifier = Modifier.height(6.dp))
+                        tasks.forEach { task ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF222222)),
+                                elevation = CardDefaults.cardElevation(6.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Event, contentDescription = null, tint = cyan)
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(task, color = white)
+                                }
+                            }
+                        }
                     }
                 }
+            }
+
+            FloatingActionButton(
+                onClick = { },
+                containerColor = cyan,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(24.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Task", tint = white)
             }
         }
     }
