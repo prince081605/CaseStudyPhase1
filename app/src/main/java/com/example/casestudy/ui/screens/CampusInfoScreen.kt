@@ -1,43 +1,20 @@
-package com.example.casestudy.ui.screens
-
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ContactMail
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,113 +36,98 @@ fun CampusInfoScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Campus Information",
-                        color = white
-                    )
-                },
+                title = { Text("Campus Information", color = white) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = white
-                        )
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = white)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = blackBg
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
             )
-        }
+        },
+        containerColor = blackBg
     ) { paddingValues ->
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(blackBg)
-                .padding(16.dp)
         ) {
 
-            // Departments Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = darkCard),
-                elevation = CardDefaults.cardElevation(6.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.School, contentDescription = null, tint = cyan)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Academic Colleges", style = MaterialTheme.typography.titleMedium, color = cyan)
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        departments.forEach {
-                            AssistChip(
-                                onClick = {},
-                                label = { Text(it, color = white) },
-                                colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = blackBg,
-                                    labelColor = white
-                                )
-                            )
-                        }
-                    }
-                }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
+                        )
+                    )
+            )
+
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawCircle(
+                    color = Color(0xFF00BCD4).copy(alpha = 0.1f),
+                    radius = 150f,
+                    center = Offset(size.width * 0.2f, size.height * 0.1f)
+                )
+                drawCircle(
+                    color = Color(0xFF00BCD4).copy(alpha = 0.08f),
+                    radius = 200f,
+                    center = Offset(size.width * 0.8f, size.height * 0.3f)
+                )
+                drawCircle(
+                    color = Color(0xFF00BCD4).copy(alpha = 0.05f),
+                    radius = 250f,
+                    center = Offset(size.width * 0.5f, size.height * 0.7f)
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Contact Information Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = darkCard),
-                elevation = CardDefaults.cardElevation(6.dp)
+            // Main content scrollable
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.ContactMail, contentDescription = null, tint = cyan)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Campus Contact Information", style = MaterialTheme.typography.titleMedium, color = cyan)
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    InfoRow(Icons.Default.Email, "info@pnc.edu.ph", cyan, white)
-                    InfoRow(Icons.Default.Phone, "(049) 545-5453", cyan, white)
-                    InfoRow(Icons.Default.LocationOn, "Barangay Banay-Banay, Cabuyao City, Laguna", cyan, white)
-                }
+                // Cards (same as previous improved design)
+                AcademicCollegesCard(departments, darkCard, cyan, white)
+                Spacer(modifier = Modifier.height(20.dp))
+                ContactInfoCard(darkCard, cyan, white)
+                Spacer(modifier = Modifier.height(20.dp))
+                AdminOfficeHoursCard(darkCard, cyan, white)
             }
+        }
+    }
+}
 
+// Separated composables for cleaner code
+@Composable
+fun AcademicCollegesCard(departments: List<String>, darkCard: Color, cyan: Color, white: Color) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = darkCard),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.School, contentDescription = null, tint = cyan, modifier = Modifier.size(28.dp))
+                Spacer(modifier = Modifier.width(10.dp))
+                Text("Academic Colleges", color = cyan, style = MaterialTheme.typography.titleMedium)
+            }
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Administrative Office Hours Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = darkCard),
-                elevation = CardDefaults.cardElevation(6.dp)
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Schedule, contentDescription = null, tint = cyan)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Administrative Office Hours", style = MaterialTheme.typography.titleMedium, color = cyan)
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text("Monday to Friday", color = white)
-                    Text("8:00 AM – 5:00 PM", color = white)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Closed during weekends and official holidays",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+                departments.forEach {
+                    AssistChip(
+                        onClick = { },
+                        label = { Text(it, color = white, fontSize = 14.sp) },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = Color(0xFF222222),
+                            labelColor = white
+                        )
                     )
                 }
             }
@@ -174,16 +136,59 @@ fun CampusInfoScreen(navController: NavController) {
 }
 
 @Composable
-fun InfoRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    text: String,
-    iconColor: Color,
-    textColor: Color
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, contentDescription = null, tint = iconColor)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text, color = textColor)
+fun ContactInfoCard(darkCard: Color, cyan: Color, white: Color) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = darkCard),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.ContactMail, contentDescription = null, tint = cyan, modifier = Modifier.size(28.dp))
+                Spacer(modifier = Modifier.width(10.dp))
+                Text("Campus Contact Information", color = cyan, style = MaterialTheme.typography.titleMedium)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            InfoRow(Icons.Default.Email, "info@pnc.edu.ph", cyan, white)
+            InfoRow(Icons.Default.Phone, "(049) 545-5453", cyan, white)
+            InfoRow(Icons.Default.LocationOn, "Barangay Banay-Banay, Cabuyao City, Laguna", cyan, white)
+        }
     }
-    Spacer(modifier = Modifier.height(6.dp))
+}
+
+@Composable
+fun AdminOfficeHoursCard(darkCard: Color, cyan: Color, white: Color) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = darkCard),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Schedule, contentDescription = null, tint = cyan, modifier = Modifier.size(28.dp))
+                Spacer(modifier = Modifier.width(10.dp))
+                Text("Administrative Office Hours", color = cyan, style = MaterialTheme.typography.titleMedium)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Monday to Friday", color = white, style = MaterialTheme.typography.bodyLarge)
+            Text("8:00 AM – 5:00 PM", color = white, style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                "Closed during weekends and official holidays",
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+fun InfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, iconColor: Color, textColor: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(22.dp))
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text, color = textColor, style = MaterialTheme.typography.bodyLarge)
+    }
 }
