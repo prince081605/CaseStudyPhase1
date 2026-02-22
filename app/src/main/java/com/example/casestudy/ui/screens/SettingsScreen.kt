@@ -2,6 +2,7 @@ package com.example.casestudy.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,24 +22,27 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(
+    navController: NavController,
+    isDarkMode: Boolean,
+    onThemeChange: (Boolean) -> Unit
+) {
 
     var notificationsEnabled by remember { mutableStateOf(true) }
-    var darkModeEnabled by remember { mutableStateOf(false) }
 
-    val blackBg = Color(0xFF0F0F0F)
-    val darkCard = Color(0xFF1A1A1A)
+    val blackBg = if (isDarkMode) Color(0xFF0F0F0F) else Color(0xFFF5F5F5)
+    val cardBg = if (isDarkMode) Color(0xFF1A1A1A) else Color.White
     val cyan = Color(0xFF00BCD4)
-    val white = Color.White
+    val textColor = if (isDarkMode) Color.White else Color.Black
     val grayText = Color(0xFFAAAAAA)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings", color = white) },
+                title = { Text("Settings", color = textColor) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = white)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
@@ -57,9 +61,15 @@ fun SettingsScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
-                        )
+                        if (isDarkMode) {
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
+                            )
+                        } else {
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFFF5F5F5), Color(0xFFE0E0E0))
+                            )
+                        }
                     )
             )
 
@@ -75,9 +85,9 @@ fun SettingsScreen(navController: NavController) {
                     .padding(16.dp)
             ) {
 
-                SettingsCard(title = "Account", icon = Icons.Default.Person, cyan = cyan, darkCard = darkCard) {
+                SettingsCard(title = "Account", icon = Icons.Default.Person, cyan = cyan, cardBg = cardBg) {
                     Column {
-                        Text("Username: admin", color = white, fontSize = 14.sp)
+                        Text("Username: admin", color = textColor, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Change Password", color = cyan, fontSize = 14.sp)
                     }
@@ -85,47 +95,75 @@ fun SettingsScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                SettingsCard(title = "Notifications", icon = Icons.Default.Notifications, cyan = cyan, darkCard = darkCard) {
+                SettingsCard(title = "Notifications", icon = Icons.Default.Notifications, cyan = cyan, cardBg = cardBg) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Enable Notifications", color = white)
-                        Switch(
-                            checked = notificationsEnabled,
-                            onCheckedChange = { notificationsEnabled = it },
-                            colors = SwitchDefaults.colors(checkedThumbColor = cyan, checkedTrackColor = cyan.copy(alpha = 0.3f))
-                        )
+                        Text("Enable Notifications", color = textColor)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "On",
+                                color = if (notificationsEnabled) cyan else grayText,
+                                modifier = Modifier
+                                    .clickable { notificationsEnabled = true }
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                                fontSize = 16.sp
+                            )
+                            Text("|", color = grayText)
+                            Text(
+                                text = "Off",
+                                color = if (!notificationsEnabled) cyan else grayText,
+                                modifier = Modifier
+                                    .clickable { notificationsEnabled = false }
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                                fontSize = 16.sp
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                SettingsCard(title = "Appearance", icon = Icons.Default.DarkMode, cyan = cyan, darkCard = darkCard) {
+                SettingsCard(title = "Appearance", icon = if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode, cyan = cyan, cardBg = cardBg) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Dark Mode", color = white)
-                        Switch(
-                            checked = darkModeEnabled,
-                            onCheckedChange = { darkModeEnabled = it },
-                            colors = SwitchDefaults.colors(checkedThumbColor = cyan, checkedTrackColor = cyan.copy(alpha = 0.3f))
-                        )
+                        Text("Dark Mode", color = textColor)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "On",
+                                color = if (isDarkMode) cyan else grayText,
+                                modifier = Modifier
+                                    .clickable { onThemeChange(true) }
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                                fontSize = 16.sp
+                            )
+                            Text("|", color = grayText)
+                            Text(
+                                text = "Off",
+                                color = if (!isDarkMode) cyan else grayText,
+                                modifier = Modifier
+                                    .clickable { onThemeChange(false) }
+                                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                                fontSize = 16.sp
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                SettingsCard(title = "Language", icon = Icons.Default.Language, cyan = cyan, darkCard = darkCard) {
+                SettingsCard(title = "Language", icon = Icons.Default.Language, cyan = cyan, cardBg = cardBg) {
                     Text("English", color = grayText)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                SettingsCard(title = "Privacy & Security", icon = Icons.Default.Lock, cyan = cyan, darkCard = darkCard) {
+                SettingsCard(title = "Privacy & Security", icon = Icons.Default.Lock, cyan = cyan, cardBg = cardBg) {
                     Column {
                         Text("Change Password", color = cyan)
                         Text("Two-Factor Authentication", color = cyan)
@@ -135,7 +173,7 @@ fun SettingsScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                SettingsCard(title = "Support & Help", icon = Icons.Default.Help, cyan = cyan, darkCard = darkCard) {
+                SettingsCard(title = "Support & Help", icon = Icons.Default.Help, cyan = cyan, cardBg = cardBg) {
                     Column {
                         Text("FAQ", color = cyan)
                         Text("Contact Support", color = cyan)
@@ -145,7 +183,7 @@ fun SettingsScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                SettingsCard(title = "App Info", icon = Icons.Default.Info, cyan = cyan, darkCard = darkCard) {
+                SettingsCard(title = "App Info", icon = Icons.Default.Info, cyan = cyan, cardBg = cardBg) {
                     Text("Version 1.0.0", color = grayText)
                 }
 
@@ -156,11 +194,11 @@ fun SettingsScreen(navController: NavController) {
 }
 
 @Composable
-fun SettingsCard(title: String, icon: ImageVector, cyan: Color, darkCard: Color, content: @Composable ColumnScope.() -> Unit) {
+fun SettingsCard(title: String, icon: ImageVector, cyan: Color, cardBg: Color, content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = darkCard),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {

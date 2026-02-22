@@ -14,6 +14,14 @@ class SessionManager(context: Context) {
         return prefs.getString("username", null)
     }
 
+    fun setDarkMode(enabled: Boolean) {
+        prefs.edit().putBoolean("dark_mode", enabled).apply()
+    }
+
+    fun isDarkMode(): Boolean {
+        return prefs.getBoolean("dark_mode", true) // Default to dark mode as requested by UI design
+    }
+
     fun logout() {
         prefs.edit().clear().apply()
     }

@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun DashboardScreen(navController: NavController, isDarkMode: Boolean) {
 
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
@@ -31,18 +31,19 @@ fun DashboardScreen(navController: NavController) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val drawerWidth = screenWidth * 0.6f
 
-    val blackBg = Color(0xFF0F0F0F)
-    val darkCard = Color(0xFF1A1A1A)
+    val blackBg = if (isDarkMode) Color(0xFF0F0F0F) else Color(0xFFF5F5F5)
+    val cardBg = if (isDarkMode) Color(0xFF1A1A1A) else Color.White
     val cyan = Color(0xFF00BCD4)
-    val white = Color.White
+    val textColor = if (isDarkMode) Color.White else Color.Black
     val red = Color(0xFFE53935)
+    val drawerBg = if (isDarkMode) Color(0xFF121212) else Color.White
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.width(drawerWidth),
-                drawerContainerColor = Color(0xFF121212)
+                drawerContainerColor = drawerBg
             ) {
 
                 Spacer(Modifier.height(24.dp))
@@ -55,50 +56,59 @@ fun DashboardScreen(navController: NavController) {
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Dashboard") },
+                    label = { Text("Dashboard", color = textColor) },
                     selected = true,
-                    icon = { Icon(Icons.Default.Home, null) },
-                    onClick = { scope.launch { drawerState.close() } }
+                    icon = { Icon(Icons.Default.Home, null, tint = if (isDarkMode) cyan else Color.Gray) },
+                    onClick = { scope.launch { drawerState.close() } },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        unselectedContainerColor = Color.Transparent,
+                        selectedContainerColor = cyan.copy(alpha = 0.1f)
+                    )
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Campus Information") },
+                    label = { Text("Campus Information", color = textColor) },
                     selected = false,
-                    icon = { Icon(Icons.Default.School, null) },
-                    onClick = { navController.navigate("campus") }
+                    icon = { Icon(Icons.Default.School, null, tint = Color.Gray) },
+                    onClick = { navController.navigate("campus") },
+                    colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.Transparent)
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Tasks & Schedule") },
+                    label = { Text("Tasks & Schedule", color = textColor) },
                     selected = false,
-                    icon = { Icon(Icons.Default.Event, null) },
-                    onClick = { navController.navigate("tasks") }
+                    icon = { Icon(Icons.Default.Event, null, tint = Color.Gray) },
+                    onClick = { navController.navigate("tasks") },
+                    colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.Transparent)
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Announcements") },
+                    label = { Text("Announcements", color = textColor) },
                     selected = false,
-                    icon = { Icon(Icons.Default.Campaign, null) },
-                    onClick = { navController.navigate("announcements") }
+                    icon = { Icon(Icons.Default.Campaign, null, tint = Color.Gray) },
+                    onClick = { navController.navigate("announcements") },
+                    colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.Transparent)
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Settings") },
+                    label = { Text("Settings", color = textColor) },
                     selected = false,
-                    icon = { Icon(Icons.Default.Settings, null) },
-                    onClick = { navController.navigate("settings") }
+                    icon = { Icon(Icons.Default.Settings, null, tint = Color.Gray) },
+                    onClick = { navController.navigate("settings") },
+                    colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.Transparent)
                 )
 
                 Spacer(Modifier.weight(1f))
 
                 NavigationDrawerItem(
-                    label = { Text("Logout") },
+                    label = { Text("Logout", color = textColor) },
                     selected = false,
-                    icon = { Icon(Icons.Default.Logout, null) },
+                    icon = { Icon(Icons.Default.Logout, null, tint = Color.Gray) },
                     onClick = {
                         sessionManager.logout()
                         navController.navigate("login")
-                    }
+                    },
+                    colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.Transparent)
                 )
             }
         }
@@ -107,12 +117,12 @@ fun DashboardScreen(navController: NavController) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Dashboard", color = white) },
+                    title = { Text("Dashboard", color = textColor) },
                     navigationIcon = {
                         IconButton(
                             onClick = { scope.launch { drawerState.open() } }
                         ) {
-                            Icon(Icons.Default.Menu, null, tint = white)
+                            Icon(Icons.Default.Menu, null, tint = textColor)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
@@ -139,7 +149,8 @@ fun DashboardScreen(navController: NavController) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = darkCard)
+                    colors = CardDefaults.cardColors(containerColor = cardBg),
+                    elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Column(Modifier.padding(16.dp)) {
 
@@ -170,7 +181,7 @@ fun DashboardScreen(navController: NavController) {
 
                         Text(
                             text = "Midterm Exams Schedule Released",
-                            color = Color.White,
+                            color = textColor,
                             style = MaterialTheme.typography.titleMedium
                         )
 
@@ -186,7 +197,7 @@ fun DashboardScreen(navController: NavController) {
 
                         Text(
                             text = "All students must review their exam dates and assigned rooms before next week.",
-                            color = Color.White,
+                            color = textColor,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -202,26 +213,28 @@ fun DashboardScreen(navController: NavController) {
                     Card(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = darkCard)
+                        colors = CardDefaults.cardColors(containerColor = cardBg),
+                        elevation = CardDefaults.cardElevation(4.dp)
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Icon(Icons.Default.Event, null, tint = cyan)
                             Spacer(Modifier.height(8.dp))
                             Text("Tasks", color = cyan)
-                            Text("3 Pending", color = Color.White)
+                            Text("3 Pending", color = textColor)
                         }
                     }
 
                     Card(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = darkCard)
+                        colors = CardDefaults.cardColors(containerColor = cardBg),
+                        elevation = CardDefaults.cardElevation(4.dp)
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Icon(Icons.Default.Schedule, null, tint = cyan)
                             Spacer(Modifier.height(8.dp))
                             Text("Schedule", color = cyan)
-                            Text("2 Classes Today", color = Color.White)
+                            Text("2 Classes Today", color = textColor)
                         }
                     }
                 }
@@ -231,7 +244,8 @@ fun DashboardScreen(navController: NavController) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = darkCard)
+                    colors = CardDefaults.cardColors(containerColor = cardBg),
+                    elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Row(
                         Modifier.padding(16.dp),
@@ -241,7 +255,7 @@ fun DashboardScreen(navController: NavController) {
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text("Campus Information", color = cyan)
-                            Text("Facilities, Offices, Contacts", color = Color.White)
+                            Text("Facilities, Offices, Contacts", color = textColor)
                         }
                     }
                 }
