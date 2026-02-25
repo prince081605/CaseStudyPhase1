@@ -1,3 +1,5 @@
+package com.example.casestudy.ui.screens
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +17,7 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,6 +104,7 @@ fun CampusInfoScreen(navController: NavController) {
 }
 
 // Separated composables for cleaner code
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AcademicCollegesCard(departments: List<String>, darkCard: Color, cyan: Color, white: Color) {
     Card(
