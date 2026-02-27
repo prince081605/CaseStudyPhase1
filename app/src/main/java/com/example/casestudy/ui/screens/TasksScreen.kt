@@ -21,7 +21,7 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen(navController: NavController) {
+fun TasksScreen(navController: NavController, isDarkMode: Boolean) {
 
     val tasks = listOf(
         "Capstone Proposal – Feb 5",
@@ -29,18 +29,19 @@ fun TasksScreen(navController: NavController) {
         "Mobile Dev Activity – Feb 10"
     )
 
-    val blackBg = Color(0xFF0F0F0F)
-    val darkCard = Color(0xFF1A1A1A)
+    val blackBg = if (isDarkMode) Color(0xFF0F0F0F) else Color(0xFFF5F5F5)
+    val cardBg = if (isDarkMode) Color(0xFF1A1A1A) else Color.White
+    val innerCardBg = if (isDarkMode) Color(0xFF222222) else Color(0xFFF0F0F0)
     val cyan = Color(0xFF00BCD4)
-    val white = Color.White
+    val textColor = if (isDarkMode) Color.White else Color.Black
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Academic Tasks", color = white) },
+                title = { Text("Academic Tasks", color = textColor) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = white)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
@@ -59,9 +60,15 @@ fun TasksScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
-                        )
+                        if (isDarkMode) {
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
+                            )
+                        } else {
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFFF5F5F5), Color(0xFFE0E0E0))
+                            )
+                        }
                     )
             )
 
@@ -81,7 +88,7 @@ fun TasksScreen(navController: NavController) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = darkCard),
+                    colors = CardDefaults.cardColors(containerColor = cardBg),
                     elevation = CardDefaults.cardElevation(12.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
@@ -100,7 +107,7 @@ fun TasksScreen(navController: NavController) {
                                     .fillMaxWidth()
                                     .padding(vertical = 4.dp),
                                 shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFF222222)),
+                                colors = CardDefaults.cardColors(containerColor = innerCardBg),
                                 elevation = CardDefaults.cardElevation(6.dp)
                             ) {
                                 Row(
@@ -111,7 +118,7 @@ fun TasksScreen(navController: NavController) {
                                 ) {
                                     Icon(Icons.Default.Event, contentDescription = null, tint = cyan)
                                     Spacer(modifier = Modifier.width(12.dp))
-                                    Text(task, color = white)
+                                    Text(task, color = textColor)
                                 }
                             }
                         }
@@ -126,7 +133,7 @@ fun TasksScreen(navController: NavController) {
                     .align(Alignment.BottomEnd)
                     .padding(24.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Task", tint = white)
+                Icon(Icons.Default.Add, contentDescription = "Add Task", tint = Color.White)
             }
         }
     }

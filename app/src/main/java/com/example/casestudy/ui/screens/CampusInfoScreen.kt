@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CampusInfoScreen(navController: NavController) {
+fun CampusInfoScreen(navController: NavController, isDarkMode: Boolean) {
 
     val departments = listOf(
         "College of Computing Studies",
@@ -30,18 +30,18 @@ fun CampusInfoScreen(navController: NavController) {
         "College of Arts and Sciences"
     )
 
-    val blackBg = Color(0xFF0F0F0F)
+    val blackBg = if (isDarkMode) Color(0xFF0F0F0F) else Color(0xFFF5F5F5)
+    val cardBg = if (isDarkMode) Color(0xFF1A1A1A) else Color.White
     val cyan = Color(0xFF00BCD4)
-    val white = Color.White
-    val darkCard = Color(0xFF1A1A1A)
+    val textColor = if (isDarkMode) Color.White else Color.Black
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Campus Information", color = white) },
+                title = { Text("Campus Information", color = textColor) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = white)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
@@ -60,9 +60,15 @@ fun CampusInfoScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
-                        )
+                        if (isDarkMode) {
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
+                            )
+                        } else {
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFFF5F5F5), Color(0xFFE0E0E0))
+                            )
+                        }
                     )
             )
 
@@ -92,11 +98,11 @@ fun CampusInfoScreen(navController: NavController) {
                     .padding(16.dp)
             ) {
                 // Cards (same as previous improved design)
-                AcademicCollegesCard(departments, darkCard, cyan, white)
+                AcademicCollegesCard(departments, cardBg, cyan, textColor)
                 Spacer(modifier = Modifier.height(20.dp))
-                ContactInfoCard(darkCard, cyan, white)
+                ContactInfoCard(cardBg, cyan, textColor)
                 Spacer(modifier = Modifier.height(20.dp))
-                AdminOfficeHoursCard(darkCard, cyan, white)
+                AdminOfficeHoursCard(cardBg, cyan, textColor)
             }
         }
     }
@@ -104,11 +110,11 @@ fun CampusInfoScreen(navController: NavController) {
 
 // Separated composables for cleaner code
 @Composable
-fun AcademicCollegesCard(departments: List<String>, darkCard: Color, cyan: Color, white: Color) {
+fun AcademicCollegesCard(departments: List<String>, cardBg: Color, cyan: Color, textColor: Color) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = darkCard),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -125,10 +131,10 @@ fun AcademicCollegesCard(departments: List<String>, darkCard: Color, cyan: Color
                 departments.forEach {
                     AssistChip(
                         onClick = { },
-                        label = { Text(it, color = white, fontSize = 14.sp) },
+                        label = { Text(it, color = textColor, fontSize = 14.sp) },
                         colors = AssistChipDefaults.assistChipColors(
-                            containerColor = Color(0xFF222222),
-                            labelColor = white
+                            containerColor = if (textColor == Color.White) Color(0xFF222222) else Color(0xFFEEEEEE),
+                            labelColor = textColor
                         )
                     )
                 }
@@ -138,11 +144,11 @@ fun AcademicCollegesCard(departments: List<String>, darkCard: Color, cyan: Color
 }
 
 @Composable
-fun ContactInfoCard(darkCard: Color, cyan: Color, white: Color) {
+fun ContactInfoCard(cardBg: Color, cyan: Color, textColor: Color) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = darkCard),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -152,19 +158,19 @@ fun ContactInfoCard(darkCard: Color, cyan: Color, white: Color) {
                 Text("Campus Contact Information", color = cyan, style = MaterialTheme.typography.titleMedium)
             }
             Spacer(modifier = Modifier.height(16.dp))
-            InfoRow(Icons.Default.Email, "info@pnc.edu.ph", cyan, white)
-            InfoRow(Icons.Default.Phone, "(049) 545-5453", cyan, white)
-            InfoRow(Icons.Default.LocationOn, "Barangay Banay-Banay, Cabuyao City, Laguna", cyan, white)
+            InfoRow(Icons.Default.Email, "info@pnc.edu.ph", cyan, textColor)
+            InfoRow(Icons.Default.Phone, "(049) 545-5453", cyan, textColor)
+            InfoRow(Icons.Default.LocationOn, "Barangay Banay-Banay, Cabuyao City, Laguna", cyan, textColor)
         }
     }
 }
 
 @Composable
-fun AdminOfficeHoursCard(darkCard: Color, cyan: Color, white: Color) {
+fun AdminOfficeHoursCard(cardBg: Color, cyan: Color, textColor: Color) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = darkCard),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -174,8 +180,8 @@ fun AdminOfficeHoursCard(darkCard: Color, cyan: Color, white: Color) {
                 Text("Administrative Office Hours", color = cyan, style = MaterialTheme.typography.titleMedium)
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Monday to Friday", color = white, style = MaterialTheme.typography.bodyLarge)
-            Text("8:00 AM – 5:00 PM", color = white, style = MaterialTheme.typography.bodyLarge)
+            Text("Monday to Friday", color = textColor, style = MaterialTheme.typography.bodyLarge)
+            Text("8:00 AM – 5:00 PM", color = textColor, style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 "Closed during weekends and official holidays",

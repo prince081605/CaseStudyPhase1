@@ -25,21 +25,21 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AnnouncementsScreen(navController: NavController) {
+fun AnnouncementsScreen(navController: NavController, isDarkMode: Boolean) {
 
-    val blackBg = Color(0xFF0F0F0F)
-    val darkCard = Color(0xFF1A1A1A)
+    val blackBg = if (isDarkMode) Color(0xFF0F0F0F) else Color(0xFFF5F5F5)
+    val cardBg = if (isDarkMode) Color(0xFF1A1A1A) else Color.White
     val cyan = Color(0xFF00BCD4)
-    val white = Color.White
+    val textColor = if (isDarkMode) Color.White else Color.Black
     val grayText = Color(0xFFAAAAAA)
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Announcements", color = white) },
+                title = { Text("Announcements", color = textColor) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = white)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
@@ -58,9 +58,15 @@ fun AnnouncementsScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
-                        )
+                        if (isDarkMode) {
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
+                            )
+                        } else {
+                            Brush.verticalGradient(
+                                colors = listOf(Color(0xFFF5F5F5), Color(0xFFE0E0E0))
+                            )
+                        }
                     )
             )
 
@@ -77,81 +83,76 @@ fun AnnouncementsScreen(navController: NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = darkCard),
-                    elevation = CardDefaults.cardElevation(8.dp)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Event, contentDescription = null, tint = cyan)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text("Enrollment starts next week", color = cyan, style = MaterialTheme.typography.titleMedium)
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text("Feb 3, 2026", color = grayText, fontSize = 12.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Students can start enrolling for the next semester starting Monday. Please check your account for available slots.",
-                            color = white,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
+                AnnouncementCard(
+                    icon = Icons.Default.Event,
+                    title = "Enrollment starts next week",
+                    date = "Feb 3, 2026",
+                    description = "Students can start enrolling for the next semester starting Monday. Please check your account for available slots.",
+                    cardBg = cardBg,
+                    cyan = cyan,
+                    textColor = textColor,
+                    grayText = grayText
+                )
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = darkCard),
-                    elevation = CardDefaults.cardElevation(8.dp)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Info, contentDescription = null, tint = cyan)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text("No classes on Feb 6", color = cyan, style = MaterialTheme.typography.titleMedium)
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text("Feb 1, 2026", color = grayText, fontSize = 12.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "All classes will be suspended on February 6 in observance of the holiday.",
-                            color = white,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
+                AnnouncementCard(
+                    icon = Icons.Default.Info,
+                    title = "No classes on Feb 6",
+                    date = "Feb 1, 2026",
+                    description = "All classes will be suspended on February 6 in observance of the holiday.",
+                    cardBg = cardBg,
+                    cyan = cyan,
+                    textColor = textColor,
+                    grayText = grayText
+                )
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = darkCard),
-                    elevation = CardDefaults.cardElevation(8.dp)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Schedule, contentDescription = null, tint = cyan)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text("Library hours extended", color = cyan, style = MaterialTheme.typography.titleMedium)
-                        }
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text("Jan 30, 2026", color = grayText, fontSize = 12.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "The library will now be open until 9 PM for the next two weeks to accommodate students during finals.",
-                            color = white,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
+                AnnouncementCard(
+                    icon = Icons.Default.Schedule,
+                    title = "Library hours extended",
+                    date = "Jan 30, 2026",
+                    description = "The library will now be open until 9 PM for the next two weeks to accommodate students during finals.",
+                    cardBg = cardBg,
+                    cyan = cyan,
+                    textColor = textColor,
+                    grayText = grayText
+                )
             }
+        }
+    }
+}
+
+@Composable
+fun AnnouncementCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    date: String,
+    description: String,
+    cardBg: Color,
+    cyan: Color,
+    textColor: Color,
+    grayText: Color
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, contentDescription = null, tint = cyan)
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(title, color = cyan, style = MaterialTheme.typography.titleMedium)
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(date, color = grayText, fontSize = 12.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                description,
+                color = textColor,
+                fontSize = 14.sp
+            )
         }
     }
 }

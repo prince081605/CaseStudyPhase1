@@ -22,13 +22,13 @@ fun AppNavHost(
             DashboardScreen(navController, isDarkMode)
         }
         composable("campus") {
-            CampusInfoScreen(navController)
+            CampusInfoScreen(navController, isDarkMode)
         }
         composable("tasks") {
-            TasksScreen(navController)
+            TasksScreen(navController, isDarkMode)
         }
         composable("announcements") {
-            AnnouncementsScreen(navController)
+            AnnouncementsScreen(navController, isDarkMode)
         }
         composable("settings") {
             SettingsScreen(navController, isDarkMode, onThemeChange)
