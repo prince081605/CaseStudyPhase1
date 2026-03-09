@@ -13,8 +13,9 @@ import com.example.casestudy.data.AppDatabase
 import com.example.casestudy.ui.navigation.AppNavHost
 import com.example.casestudy.ui.theme.CaseStudyTheme
 import com.example.casestudy.ui.viewmodel.MainViewModel
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,14 +29,15 @@ class MainActivity : ComponentActivity() {
 
         val viewModel = ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                @Suppress("UNCHECKED_CAST")
                 return MainViewModel(db.dao()) as T
             }
         })[MainViewModel::class.java]
 
         // Pre-populate announcements if empty
-        lifecycleScope.launch {
-            val currentAnnouncements = db.dao().getAllAnnouncements().first()
-            if (currentAnnouncements.isEmpty()) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val count = db.dao().getAnnouncementCount()
+            if (count == 0) {
                 db.dao().insertAnnouncement(
                     Announcement(
                         title = "Welcome to Smart CC!",

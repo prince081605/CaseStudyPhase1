@@ -14,6 +14,9 @@ interface AppDao {
     @Query("SELECT * FROM tasks ORDER BY id DESC")
     fun getAllTasks(): Flow<List<Task>>
 
+    @Query("SELECT COUNT(*) FROM tasks")
+    suspend fun getTaskCount(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: Task)
 
@@ -26,6 +29,9 @@ interface AppDao {
     // Announcements
     @Query("SELECT * FROM announcements ORDER BY id DESC")
     fun getAllAnnouncements(): Flow<List<Announcement>>
+
+    @Query("SELECT COUNT(*) FROM announcements")
+    suspend fun getAnnouncementCount(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAnnouncement(announcement: Announcement)
