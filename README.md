@@ -108,28 +108,23 @@ The application provides features for task management, campus information, annou
 
 ## 📁 Project Structure
 com.example.casestudy/
-│
-├── MainActivity.kt              # Application entry point
-│
+├── MainActivity.kt # Application entry point
 ├── ui/
-│   ├── navigation/              # Navigation graph
-│   │   └── AppNavHost.kt
-│   │
-│   ├── screens/                 # UI Screens (Composables)
-│   │   ├── LoginScreen.kt
-│   │   ├── DashboardScreen.kt
-│   │   ├── CampusInfoScreen.kt
-│   │   ├── TasksScreen.kt
-│   │   ├── AnnouncementsScreen.kt
-│   │   └── SettingsScreen.kt
-│   │
-│   └── theme/                   # App Theme
-│       ├── Color.kt
-│       ├── Theme.kt
-│       └── Type.kt
-│
+│ ├── navigation/ # Navigation graph
+│ │ └── AppNavHost.kt
+│ ├── screens/ # UI Screens (Composables)
+│ │ ├── LoginScreen.kt
+│ │ ├── DashboardScreen.kt
+│ │ ├── CampusInfoScreen.kt
+│ │ ├── TasksScreen.kt
+│ │ ├── AnnouncementsScreen.kt
+│ │ └── SettingsScreen.kt
+│ └── theme/ # App Theme
+│ ├── Color.kt
+│ ├── Theme.kt
+│ └── Type.kt
 └── util/
-    └── SessionManager.kt        # Session Management
+└── SessionManager.kt # Session Management
 
 
 ## 🎨 UI / UX Design
@@ -208,6 +203,7 @@ Settings Screen
 - Android SDK API 34
 
 **Installation**
+
 1️⃣ Clone the repository
 git clone https://github.com/prince081605/CaseStudyPhase1.git
 
