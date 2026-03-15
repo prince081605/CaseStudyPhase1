@@ -34,7 +34,6 @@ fun CampusInfoScreen(navController: NavController) {
         "College of Arts and Sciences"
     )
 
-    // Theme-like colors (pwede mo ilipat sa Theme.kt later)
     val blackBg = Color(0xFF0F0F0F)
     val cyan = Color(0xFF00BCD4)
     val white = Color.White
@@ -136,6 +135,7 @@ fun CampusInfoScreen(navController: NavController) {
     }
 }
 
+// Composables
 @Composable
 private fun AcademicCollegesCard(
     departments: List<String>,
@@ -159,7 +159,6 @@ private fun AcademicCollegesCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ Replaced FlowRow with LazyRow (no dependency issues)
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(end = 8.dp)

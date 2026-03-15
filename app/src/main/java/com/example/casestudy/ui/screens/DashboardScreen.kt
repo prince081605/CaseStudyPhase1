@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.casestudy.ui.viewmodel.MainViewModel
 import com.example.casestudy.util.SessionManager
 import kotlinx.coroutines.launch
 
@@ -24,6 +25,11 @@ fun DashboardScreen(navController: NavController, isDarkMode: Boolean) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     val username = sessionManager.getUsername() ?: "User"
+
+    val tasks by viewModel.tasks.collectAsState()
+    val announcements by viewModel.announcements.collectAsState()
+    val pendingTasks = tasks.count { !it.isCompleted }
+    val latestAnnouncement = announcements.firstOrNull()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -162,33 +168,35 @@ fun DashboardScreen(navController: NavController, isDarkMode: Boolean) {
 
                             Text("Recent Announcement", color = cyan)
 
-                            Spacer(Modifier.width(8.dp))
+                            if (latestAnnouncement != null && !latestAnnouncement.isRead) {
+                                Spacer(Modifier.width(8.dp))
 
-                            Surface(
-                                color = red,
-                                shape = RoundedCornerShape(8.dp)
-                            ) {
-                                Text(
-                                    "NEW",
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                    style = MaterialTheme.typography.labelSmall
-                                )
+                                Surface(
+                                    color = red,
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        "NEW",
+                                        color = Color.White,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
                             }
                         }
 
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = "Midterm Exams Schedule Released",
-                            color = textColor,
+                            text = latestAnnouncement?.title ?: "No announcements",
+                            color = Color.White,
                             style = MaterialTheme.typography.titleMedium
                         )
 
                         Spacer(Modifier.height(4.dp))
 
                         Text(
-                            text = "Posted today • Academic Office",
+                            text = latestAnnouncement?.let { "Posted ${it.date} • Academic Office" } ?: "",
                             color = Color.Gray,
                             style = MaterialTheme.typography.labelSmall
                         )
@@ -196,8 +204,8 @@ fun DashboardScreen(navController: NavController, isDarkMode: Boolean) {
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = "All students must review their exam dates and assigned rooms before next week.",
-                            color = textColor,
+                            text = latestAnnouncement?.content ?: "Check back later for updates.",
+                            color = Color.White,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -213,14 +221,14 @@ fun DashboardScreen(navController: NavController, isDarkMode: Boolean) {
                     Card(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = cardBg),
-                        elevation = CardDefaults.cardElevation(4.dp)
+                        colors = CardDefaults.cardColors(containerColor = darkCard),
+                        onClick = { navController.navigate("tasks") }
                     ) {
                         Column(Modifier.padding(16.dp)) {
                             Icon(Icons.Default.Event, null, tint = cyan)
                             Spacer(Modifier.height(8.dp))
                             Text("Tasks", color = cyan)
-                            Text("3 Pending", color = textColor)
+                            Text("$pendingTasks Pending", color = Color.White)
                         }
                     }
 
@@ -244,8 +252,8 @@ fun DashboardScreen(navController: NavController, isDarkMode: Boolean) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = cardBg),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    colors = CardDefaults.cardColors(containerColor = darkCard),
+                    onClick = { navController.navigate("campus") }
                 ) {
                     Row(
                         Modifier.padding(16.dp),

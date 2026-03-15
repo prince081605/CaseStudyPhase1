@@ -1,24 +1,25 @@
 package com.example.casestudy.ui.screens
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Announcement
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -47,40 +48,27 @@ fun AnnouncementsScreen(navController: NavController, isDarkMode: Boolean) {
         },
         containerColor = blackBg
     ) { paddingValues ->
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(
+                    if (isDarkMode) {
+                        Brush.verticalGradient(
+                            colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
+                        )
+                    } else {
+                        Brush.verticalGradient(
+                            colors = listOf(Color(0xFFF5F5F5), Color(0xFFE0E0E0))
+                        )
+                    }
+                )
         ) {
-
-            Box(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        if (isDarkMode) {
-                            Brush.verticalGradient(
-                                colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
-                            )
-                        } else {
-                            Brush.verticalGradient(
-                                colors = listOf(Color(0xFFF5F5F5), Color(0xFFE0E0E0))
-                            )
-                        }
-                    )
-            )
-
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                drawCircle(Color(0xFF00BCD4).copy(alpha = 0.08f), 150f, Offset(size.width * 0.15f, size.height * 0.2f))
-                drawCircle(Color(0xFF00BCD4).copy(alpha = 0.06f), 200f, Offset(size.width * 0.8f, size.height * 0.35f))
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
                     .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 AnnouncementCard(
@@ -148,11 +136,7 @@ fun AnnouncementCard(
             Spacer(modifier = Modifier.height(6.dp))
             Text(date, color = grayText, fontSize = 12.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                description,
-                color = textColor,
-                fontSize = 14.sp
-            )
+            Text(description, color = textColor, fontSize = 14.sp)
         }
     }
 }
