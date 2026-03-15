@@ -2,37 +2,36 @@ package com.example.casestudy.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.casestudy.data.Announcement
+import com.example.casestudy.ui.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AnnouncementsScreen(navController: NavController, isDarkMode: Boolean) {
+fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) {
+    val announcements by viewModel.announcements.collectAsState()
 
-    val blackBg = if (isDarkMode) Color(0xFF0F0F0F) else Color(0xFFF5F5F5)
-    val cardBg = if (isDarkMode) Color(0xFF1A1A1A) else Color.White
-    val cyan = Color(0xFF00BCD4)
-    val textColor = if (isDarkMode) Color.White else Color.Black
-    val grayText = Color(0xFFAAAAAA)
+    // Dynamic colors
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     Scaffold(
         topBar = {
@@ -43,26 +42,15 @@ fun AnnouncementsScreen(navController: NavController, isDarkMode: Boolean) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
-        containerColor = blackBg
+        containerColor = backgroundColor
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    if (isDarkMode) {
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
-                        )
-                    } else {
-                        Brush.verticalGradient(
-                            colors = listOf(Color(0xFFF5F5F5), Color(0xFFE0E0E0))
-                        )
-                    }
-                )
         ) {
             LazyColumn(
                 modifier = Modifier
@@ -70,73 +58,77 @@ fun AnnouncementsScreen(navController: NavController, isDarkMode: Boolean) {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
-                AnnouncementCard(
-                    icon = Icons.Default.Event,
-                    title = "Enrollment starts next week",
-                    date = "Feb 3, 2026",
-                    description = "Students can start enrolling for the next semester starting Monday. Please check your account for available slots.",
-                    cardBg = cardBg,
-                    cyan = cyan,
-                    textColor = textColor,
-                    grayText = grayText
-                )
-
-                AnnouncementCard(
-                    icon = Icons.Default.Info,
-                    title = "No classes on Feb 6",
-                    date = "Feb 1, 2026",
-                    description = "All classes will be suspended on February 6 in observance of the holiday.",
-                    cardBg = cardBg,
-                    cyan = cyan,
-                    textColor = textColor,
-                    grayText = grayText
-                )
-
-                AnnouncementCard(
-                    icon = Icons.Default.Schedule,
-                    title = "Library hours extended",
-                    date = "Jan 30, 2026",
-                    description = "The library will now be open until 9 PM for the next two weeks to accommodate students during finals.",
-                    cardBg = cardBg,
-                    cyan = cyan,
-                    textColor = textColor,
-                    grayText = grayText
-                )
+                items(announcements) { announcement ->
+                    AnnouncementItem(
+                        announcement = announcement,
+                        onMarkAsRead = {
+                            viewModel.updateAnnouncement(announcement.copy(isRead = true))
+                        },
+                        onMarkAsUnread = {
+                            viewModel.updateAnnouncement(announcement.copy(isRead = false))
+                        }
+                    )
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AnnouncementCard(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    date: String,
-    description: String,
-    cardBg: Color,
-    cyan: Color,
-    textColor: Color,
-    grayText: Color
+fun AnnouncementItem(
+    announcement: Announcement,
+    onMarkAsRead: () -> Unit,
+    onMarkAsUnread: () -> Unit
 ) {
+    // Dynamic colors inside item
+    val cardColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val grayText = textColor.copy(alpha = 0.6f)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .combinedClickable(
+                onClick = { /* Could navigate to detail if needed */ },
+                onLongClick = onMarkAsUnread
+            ),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = cardBg),
-        elevation = CardDefaults.cardElevation(8.dp)
+        colors = CardDefaults.cardColors(containerColor = cardColor),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, tint = cyan)
+                Icon(
+                    Icons.Default.Info,
+                    contentDescription = null,
+                    tint = if (announcement.isRead) grayText else primaryColor
+                )
                 Spacer(modifier = Modifier.width(12.dp))
-                Text(title, color = cyan, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    text = announcement.title,
+                    color = if (announcement.isRead) grayText else primaryColor,
+                    style = MaterialTheme.typography.titleMedium
+                )
             }
             Spacer(modifier = Modifier.height(6.dp))
-            Text(date, color = grayText, fontSize = 12.sp)
+            Text(text = announcement.date, color = grayText, fontSize = 12.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(description, color = textColor, fontSize = 14.sp)
+            Text(
+                text = announcement.content,
+                color = textColor,
+                fontSize = 14.sp
+            )
+            if (!announcement.isRead) {
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    onClick = onMarkAsRead,
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Mark as Read", color = primaryColor)
+                }
+            }
         }
     }
 }
