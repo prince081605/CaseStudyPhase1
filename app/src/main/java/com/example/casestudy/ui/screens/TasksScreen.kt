@@ -17,7 +17,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -33,9 +32,10 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
     var showAddDialog by remember { mutableStateOf(false) }
     var taskToEdit by remember { mutableStateOf<Task?>(null) }
 
-    val blackBg = Color(0xFF0F0F0F)
-    val cyan = Color(0xFF00BCD4)
-    val textColor = if (isDarkMode) Color.White else Color.Black
+    // Dynamic colors
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     Scaffold(
         topBar = {
@@ -46,18 +46,18 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
-        containerColor = blackBg,
+        containerColor = backgroundColor,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { 
                     taskToEdit = null
                     showAddDialog = true 
                 },
-                containerColor = cyan,
-                contentColor = white
+                containerColor = primaryColor,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Task")
             }
@@ -67,15 +67,10 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
-                    )
-                )
         ) {
             if (tasks.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No tasks yet. Tap + to add one!", color = Color.Gray)
+                    Text("No tasks yet. Tap + to add one!", color = textColor.copy(alpha = 0.6f))
                 }
             } else {
                 LazyColumn(
@@ -118,15 +113,15 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
 
 @Composable
 fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: () -> Unit) {
-    val darkCard = Color(0xFF1A1A1A)
-    val cyan = Color(0xFF00BCD4)
-    val white = Color.White
+    val cardColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onEdit() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = darkCard),
-        elevation = CardDefaults.cardElevation(4.dp)
+        colors = CardDefaults.cardColors(containerColor = cardColor),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Row(
             modifier = Modifier
@@ -137,26 +132,29 @@ fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: () 
             Checkbox(
                 checked = task.isCompleted,
                 onCheckedChange = { onToggle() },
-                colors = CheckboxDefaults.colors(checkedColor = cyan, uncheckedColor = Color.Gray)
+                colors = CheckboxDefaults.colors(
+                    checkedColor = primaryColor,
+                    uncheckedColor = textColor.copy(alpha = 0.4f)
+                )
             )
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = task.title,
-                    color = white,
+                    color = textColor,
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Text(
                     text = "Due: ${task.dueDate}",
-                    color = Color.Gray,
+                    color = textColor.copy(alpha = 0.6f),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
             IconButton(onClick = onEdit) {
-                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = cyan.copy(alpha = 0.7f))
+                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = primaryColor.copy(alpha = 0.7f))
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red.copy(alpha = 0.7f))
+                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
             }
         }
     }
@@ -212,7 +210,7 @@ fun TaskDialog(task: Task? = null, onDismiss: () -> Unit, onSave: (String, Strin
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Event, contentDescription = null, tint = Color.Gray)
+                    Icon(Icons.Default.Event, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(selectedDate, modifier = Modifier.weight(1f))
                     TextButton(onClick = { showDatePicker = true }) {
@@ -221,7 +219,7 @@ fun TaskDialog(task: Task? = null, onDismiss: () -> Unit, onSave: (String, Strin
                 }
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Schedule, contentDescription = null, tint = Color.Gray)
+                    Icon(Icons.Default.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(selectedTime, modifier = Modifier.weight(1f))
                     TextButton(onClick = { showTimePicker = true }) {
@@ -233,7 +231,7 @@ fun TaskDialog(task: Task? = null, onDismiss: () -> Unit, onSave: (String, Strin
         confirmButton = {
             Button(
                 onClick = { if (title.isNotBlank()) onSave(title, "$selectedDate $selectedTime") },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BCD4))
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(if (task == null) "Add" else "Update")
             }
