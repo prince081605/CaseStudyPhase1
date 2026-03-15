@@ -3,23 +3,25 @@ package com.example.casestudy.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.casestudy.ui.theme.ErrorRed
+import com.example.casestudy.ui.theme.LoginBackgroundGradient
 import com.example.casestudy.util.SessionManager
 
 @Composable
@@ -33,125 +35,117 @@ fun LoginScreen(navController: NavController) {
     var error by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val cyan = Color(0xFF00BCD4)
-    val dark1 = Color(0xFF0F0F0F)
-    val dark2 = Color(0xFF121212)
-    val dark3 = Color(0xFF1A1A1A)
-    val white = Color.White
-
-    val gradientBackground = Brush.verticalGradient(
-        colors = listOf(dark1, dark2, dark3)
-    )
+    // Dynamic colors
+    val isDarkMode = MaterialTheme.colorScheme.background.red < 0.5f // Simple check for dark mode
+    val cardColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+    val textColor = MaterialTheme.colorScheme.onBackground
+    val primaryColor = MaterialTheme.colorScheme.primary
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(gradientBackground)
+            .then(
+                if (isDarkMode) {
+                    Modifier.background(LoginBackgroundGradient)
+                } else {
+                    Modifier.background(MaterialTheme.colorScheme.background)
+                }
+            )
     ) {
-
-        Box(
+        Column(
             modifier = Modifier
-                .size(300.dp)
-                .align(Alignment.TopStart)
-                .offset(x = (-80).dp, y = (-80).dp)
-                .background(cyan.copy(alpha = 0.25f), CircleShape)
-                .blur(120.dp)
-        )
-
-        Box(
-            modifier = Modifier
-                .size(260.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = 80.dp, y = 80.dp)
-                .background(cyan.copy(alpha = 0.2f), CircleShape)
-                .blur(120.dp)
-        )
-
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            Text(
+                text = "Smart CC",
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 2.sp
+                ),
+                color = primaryColor
+            )
+
+            Text(
+                text = "Your Campus Companion",
+                style = MaterialTheme.typography.bodyLarge,
+                color = textColor.copy(alpha = 0.7f)
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
 
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-                elevation = CardDefaults.cardElevation(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(32.dp),
+                colors = CardDefaults.cardColors(containerColor = cardColor),
+                elevation = CardDefaults.cardElevation(0.dp)
             ) {
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(28.dp),
+                        .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-
-                    Text(
-                        text = "Smart CC",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = cyan
-                    )
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = username,
                         onValueChange = { username = it },
-                        label = { Text("Username", color = white) },
+                        label = { Text("Username") },
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = primaryColor) },
                         singleLine = true,
-                        shape = RoundedCornerShape(18.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = cyan,
-                            unfocusedBorderColor = white,
-                            focusedTextColor = white,
-                            unfocusedTextColor = white,
-                            cursorColor = cyan
+                            focusedBorderColor = primaryColor,
+                            unfocusedBorderColor = textColor.copy(alpha = 0.2f),
+                            focusedLabelColor = primaryColor,
+                            unfocusedLabelColor = textColor.copy(alpha = 0.5f),
+                            focusedTextColor = textColor,
+                            unfocusedTextColor = textColor
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password", color = white) },
+                        label = { Text("Password") },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = primaryColor) },
                         singleLine = true,
-                        shape = RoundedCornerShape(18.dp),
+                        shape = RoundedCornerShape(16.dp),
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            Icon(
-                                imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                contentDescription = null,
-                                tint = cyan,
-                                modifier = Modifier.clickable {
-                                    passwordVisible = !passwordVisible
-                                }
-                            )
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                    contentDescription = null,
+                                    tint = primaryColor
+                                )
+                            }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = cyan,
-                            unfocusedBorderColor = white,
-                            focusedTextColor = white,
-                            unfocusedTextColor = white,
-                            cursorColor = cyan
+                            focusedBorderColor = primaryColor,
+                            unfocusedBorderColor = textColor.copy(alpha = 0.2f),
+                            focusedLabelColor = primaryColor,
+                            unfocusedLabelColor = textColor.copy(alpha = 0.5f),
+                            focusedTextColor = textColor,
+                            unfocusedTextColor = textColor
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     if (error.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = error,
-                            color = Color.Red
+                            color = ErrorRed,
+                            style = MaterialTheme.typography.bodySmall
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
                     Button(
                         onClick = {
@@ -159,33 +153,35 @@ fun LoginScreen(navController: NavController) {
                                 sessionManager.saveLogin(username)
                                 navController.navigate("dashboard")
                             } else {
-                                error = "Invalid credentials"
+                                error = "Incorrect username or password"
                             }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(55.dp),
-                        shape = RoundedCornerShape(18.dp),
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = cyan,
-                            contentColor = Color.Black
-                        )
+                            containerColor = primaryColor,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
                     ) {
                         Text(
                             text = "Login",
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "Forgot Password?",
-                        color = cyan,
-                        modifier = Modifier.clickable { }
-                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Forgot Password?",
+                color = primaryColor,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable { }
+            )
         }
     }
 }
