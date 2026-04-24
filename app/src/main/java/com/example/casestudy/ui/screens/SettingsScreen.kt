@@ -1,7 +1,7 @@
 package com.example.casestudy.ui.screens
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,13 +13,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.casestudy.ui.theme.*
 import com.example.casestudy.util.SessionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -33,188 +33,191 @@ fun SettingsScreen(
     val sessionManager = remember { SessionManager(context) }
     var notificationsEnabled by remember { mutableStateOf(sessionManager.isNotificationsEnabled()) }
 
-    val blackBg = if (isDarkMode) Color(0xFF0F0F0F) else Color(0xFFF5F5F5)
-    val cardBg = if (isDarkMode) Color(0xFF1A1A1A) else Color.White
-    val cyan = Color(0xFF00BCD4)
-    val textColor = if (isDarkMode) Color.White else Color.Black
-    val grayText = Color(0xFFAAAAAA)
+    // Cartoonish Theme Colors
+    val bgColor = if (isDarkMode) Color(0xFF121212) else PastelYellow
+    val cardBg = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
+    val textColor = if (isDarkMode) Color.White else DarkText
+    val accentColor = PastelPink
+    val borderColor = if (isDarkMode) Color(0xFF333333) else DarkText.copy(alpha = 0.1f)
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Settings", color = textColor) },
+            CenterAlignedTopAppBar(
+                title = { 
+                    Text(
+                        "Settings", 
+                        fontWeight = FontWeight.ExtraBold,
+                        color = textColor
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         },
-        containerColor = blackBg
+        containerColor = bgColor
     ) { paddingValues ->
-
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
         ) {
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        if (isDarkMode) {
-                            Brush.verticalGradient(
-                                colors = listOf(Color(0xFF0B0B0B), Color(0xFF111111))
-                            )
-                        } else {
-                            Brush.verticalGradient(
-                                colors = listOf(Color(0xFFF5F5F5), Color(0xFFE0E0E0))
-                            )
-                        }
+            CartoonSettingsCard(
+                title = "Appearance",
+                icon = if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+                color = cardBg,
+                border = borderColor,
+                accentColor = PastelBlue,
+                textColor = textColor
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Dark Mode", fontWeight = FontWeight.Bold, color = textColor)
+                    Switch(
+                        checked = isDarkMode,
+                        onCheckedChange = { onThemeChange(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = PastelBlue
+                        )
                     )
-            )
-
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                drawCircle(Color(0xFF00BCD4).copy(alpha = 0.1f), 150f, Offset(size.width * 0.1f, size.height * 0.2f))
-                drawCircle(Color(0xFF00BCD4).copy(alpha = 0.08f), 200f, Offset(size.width * 0.8f, size.height * 0.4f))
+                }
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CartoonSettingsCard(
+                title = "Notifications",
+                icon = Icons.Default.Notifications,
+                color = cardBg,
+                border = borderColor,
+                accentColor = MintGreen,
+                textColor = textColor
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Enable Notifications", fontWeight = FontWeight.Bold, color = textColor)
+                    Switch(
+                        checked = notificationsEnabled,
+                        onCheckedChange = { 
+                            notificationsEnabled = it
+                            sessionManager.setNotificationsEnabled(it)
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = MintGreen
+                        )
+                    )
+                }
+            }
 
-                SettingsCard(title = "Account", icon = Icons.Default.Person, cyan = cyan, cardBg = cardBg) {
-                    Column {
-                        Text("Username: ${sessionManager.getUsername() ?: "User"}", color = textColor, fontSize = 14.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Change Password", color = cyan, fontSize = 14.sp)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CartoonSettingsCard(
+                title = "Account",
+                icon = Icons.Default.Person,
+                color = cardBg,
+                border = borderColor,
+                accentColor = SoftPeach,
+                textColor = textColor
+            ) {
+                Column {
+                    Text("User: ${sessionManager.getUsername() ?: "User"}", color = textColor)
+                    Spacer(Modifier.height(8.dp))
+                    TextButton(onClick = { }, contentPadding = PaddingValues(0.dp)) {
+                        Text("Change Password", color = BubblegumPink, fontWeight = FontWeight.Bold)
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                SettingsCard(title = "Notifications", icon = Icons.Default.Notifications, cyan = cyan, cardBg = cardBg) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Enable Notifications", color = textColor)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "On",
-                                color = if (notificationsEnabled) cyan else grayText,
-                                modifier = Modifier
-                                    .clickable { 
-                                        notificationsEnabled = true
-                                        sessionManager.setNotificationsEnabled(true)
-                                    }
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                                fontSize = 16.sp
-                            )
-                            Text("|", color = grayText)
-                            Text(
-                                text = "Off",
-                                color = if (!notificationsEnabled) cyan else grayText,
-                                modifier = Modifier
-                                    .clickable { 
-                                        notificationsEnabled = false
-                                        sessionManager.setNotificationsEnabled(false)
-                                    }
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                                fontSize = 16.sp
-                            )
-                        }
+            CartoonSettingsCard(
+                title = "App Info",
+                icon = Icons.Default.Info,
+                color = cardBg,
+                border = borderColor,
+                accentColor = SoftLavender,
+                textColor = textColor
+            ) {
+                Column {
+                    Text("Version 1.0.0", color = textColor.copy(alpha = 0.6f))
+                    Text("Case Study Project", color = textColor.copy(alpha = 0.6f))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Button(
+                onClick = {
+                    sessionManager.logout()
+                    navController.navigate("login") {
+                        popUpTo("dashboard") { inclusive = true }
                     }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                SettingsCard(title = "Appearance", icon = if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode, cyan = cyan, cardBg = cardBg) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Dark Mode", color = textColor)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "On",
-                                color = if (isDarkMode) cyan else grayText,
-                                modifier = Modifier
-                                    .clickable { onThemeChange(true) }
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                                fontSize = 16.sp
-                            )
-                            Text("|", color = grayText)
-                            Text(
-                                text = "Off",
-                                color = if (!isDarkMode) cyan else grayText,
-                                modifier = Modifier
-                                    .clickable { onThemeChange(false) }
-                                    .padding(horizontal = 12.dp, vertical = 4.dp),
-                                fontSize = 16.sp
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                SettingsCard(title = "Language", icon = Icons.Default.Language, cyan = cyan, cardBg = cardBg) {
-                    Text("English", color = grayText)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                SettingsCard(title = "Privacy & Security", icon = Icons.Default.Lock, cyan = cyan, cardBg = cardBg) {
-                    Column {
-                        Text("Change Password", color = cyan)
-                        Text("Two-Factor Authentication", color = cyan)
-                        Text("App Permissions", color = cyan)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                SettingsCard(title = "Support & Help", icon = Icons.Default.Help, cyan = cyan, cardBg = cardBg) {
-                    Column {
-                        Text("FAQ", color = cyan)
-                        Text("Contact Support", color = cyan)
-                        Text("Terms & Conditions", color = cyan)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                SettingsCard(title = "App Info", icon = Icons.Default.Info, cyan = cyan, cardBg = cardBg) {
-                    Text("Version 1.0.0", color = grayText)
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
+                },
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.7f))
+            ) {
+                Icon(Icons.Default.Logout, null, tint = Color.White)
+                Spacer(Modifier.width(8.dp))
+                Text("Logout", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     }
 }
 
 @Composable
-fun SettingsCard(title: String, icon: ImageVector, cyan: Color, cardBg: Color, content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = cardBg),
-        elevation = CardDefaults.cardElevation(8.dp)
+fun CartoonSettingsCard(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    border: Color,
+    accentColor: Color,
+    textColor: Color,
+    content: @Composable () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = border,
+                shape = RoundedCornerShape(24.dp)
+            ),
+        shape = RoundedCornerShape(24.dp),
+        color = color
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, tint = cyan, modifier = Modifier.size(28.dp))
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(title, color = cyan, style = MaterialTheme.typography.titleMedium)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(accentColor, RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, null, tint = DarkText, modifier = Modifier.size(24.dp))
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 18.sp,
+                    color = textColor
+                )
             }
             Spacer(modifier = Modifier.height(16.dp))
             content()
