@@ -22,6 +22,14 @@ class SessionManager(context: Context) {
         return prefs.getBoolean("dark_mode", true) // Default to dark mode as requested by UI design
     }
 
+    fun setNotificationsEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean("notifications_enabled", enabled).apply()
+    }
+
+    fun isNotificationsEnabled(): Boolean {
+        return prefs.getBoolean("notifications_enabled", true)
+    }
+
     fun logout() {
         prefs.edit().clear().apply()
     }

@@ -16,12 +16,16 @@ class AnnouncementViewModel : ViewModel() {
     private val _allAnnouncements = MutableStateFlow<List<Announcement>>(emptyList())
     val allAnnouncements: StateFlow<List<Announcement>> = _allAnnouncements
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     init {
         observeAnnouncements()
     }
 
     private fun observeAnnouncements() {
         announcementsCollection.addSnapshotListener { snapshot, error ->
+            _isLoading.value = false
             if (error != null) return@addSnapshotListener
             val announcements = snapshot?.toObjects(Announcement::class.java) ?: emptyList()
             _allAnnouncements.value = announcements

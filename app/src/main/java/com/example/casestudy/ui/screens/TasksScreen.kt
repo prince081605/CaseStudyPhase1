@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat
 fun TasksScreen(navController: NavController, viewModel: TaskViewModel = viewModel()) {
 
     val tasks by viewModel.allTasks.collectAsState(initial = emptyList())
+    val isLoading by viewModel.isLoading.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingTask by remember { mutableStateOf<Task?>(null) }
 
@@ -82,7 +83,11 @@ fun TasksScreen(navController: NavController, viewModel: TaskViewModel = viewMod
                 drawCircle(Color(0xFF00BCD4).copy(alpha = 0.06f), 200f, Offset(size.width * 0.8f, size.height * 0.3f))
             }
 
-            if (tasks.isEmpty()) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = cyan)
+                }
+            } else if (tasks.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No tasks yet. Tap + to add one.", color = Color.Gray)
                 }

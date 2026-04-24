@@ -34,7 +34,9 @@ fun DashboardScreen(
     val username = sessionManager.getUsername() ?: "User"
 
     val tasks by taskViewModel.allTasks.collectAsState()
+    val isTasksLoading by taskViewModel.isLoading.collectAsState()
     val announcements by announcementViewModel.allAnnouncements.collectAsState()
+    val isAnnouncementsLoading by announcementViewModel.isLoading.collectAsState()
 
     val pendingTasksCount = tasks.count { !it.isCompleted }
     val latestAnnouncement = announcements.firstOrNull()
@@ -188,28 +190,32 @@ fun DashboardScreen(
 
                         Spacer(Modifier.height(8.dp))
 
-                        Text(
-                            text = latestAnnouncement?.title ?: "No new announcements",
-                            color = textColor,
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        if (isAnnouncementsLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = cyan)
+                        } else {
+                            Text(
+                                text = latestAnnouncement?.title ?: "No new announcements",
+                                color = textColor,
+                                style = MaterialTheme.typography.titleMedium
+                            )
 
-                        Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(4.dp))
 
-                        Text(
-                            text = if (latestAnnouncement != null) "Posted ${latestAnnouncement.date} • ${latestAnnouncement.author}" else "Check back later for updates",
-                            color = Color.Gray,
-                            style = MaterialTheme.typography.labelSmall
-                        )
+                            Text(
+                                text = if (latestAnnouncement != null) "Posted ${latestAnnouncement.date} • ${latestAnnouncement.author}" else "Check back later for updates",
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.labelSmall
+                            )
 
-                        Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(8.dp))
 
-                        Text(
-                            text = latestAnnouncement?.content ?: "Stay tuned for campus news and events.",
-                            color = textColor,
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 2
-                        )
+                            Text(
+                                text = latestAnnouncement?.content ?: "Stay tuned for campus news and events.",
+                                color = textColor,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 2
+                            )
+                        }
                     }
                 }
 
@@ -231,7 +237,11 @@ fun DashboardScreen(
                             Icon(Icons.Default.Event, null, tint = cyan)
                             Spacer(Modifier.height(8.dp))
                             Text("Tasks", color = cyan)
-                            Text("$pendingTasksCount Pending", color = textColor)
+                            if (isTasksLoading) {
+                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = cyan)
+                            } else {
+                                Text("$pendingTasksCount Pending", color = textColor)
+                            }
                         }
                     }
 
@@ -247,8 +257,6 @@ fun DashboardScreen(
                             Icon(Icons.Default.Schedule, null, tint = cyan)
                             Spacer(Modifier.height(8.dp))
                             Text("Schedule", color = cyan)
-                            // Keeping this partially static as we don't have a separate schedule DB yet, 
-                            // but we can mock it or use task count for today
                             Text("Regular Classes", color = textColor)
                         }
                     }

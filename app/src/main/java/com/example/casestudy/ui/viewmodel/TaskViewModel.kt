@@ -16,12 +16,16 @@ class TaskViewModel : ViewModel() {
     private val _allTasks = MutableStateFlow<List<Task>>(emptyList())
     val allTasks: StateFlow<List<Task>> = _allTasks
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     init {
         observeTasks()
     }
 
     private fun observeTasks() {
         tasksCollection.addSnapshotListener { snapshot, error ->
+            _isLoading.value = false
             if (error != null) return@addSnapshotListener
             val tasks = snapshot?.toObjects(Task::class.java) ?: emptyList()
             _allTasks.value = tasks

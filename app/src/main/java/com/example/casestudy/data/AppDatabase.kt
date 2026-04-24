@@ -39,7 +39,7 @@ interface AnnouncementDao {
     suspend fun updateAnnouncement(announcement: Announcement)
 }
 
-@Database(entities = [Task::class, Announcement::class], version = 1, exportSchema = false)
+@Database(entities = [Task::class, Announcement::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun announcementDao(): AnnouncementDao
@@ -54,7 +54,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "case_study_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

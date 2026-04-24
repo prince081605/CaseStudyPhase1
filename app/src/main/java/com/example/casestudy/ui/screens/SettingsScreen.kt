@@ -16,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.casestudy.util.SessionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,8 +29,9 @@ fun SettingsScreen(
     isDarkMode: Boolean,
     onThemeChange: (Boolean) -> Unit
 ) {
-
-    var notificationsEnabled by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
+    var notificationsEnabled by remember { mutableStateOf(sessionManager.isNotificationsEnabled()) }
 
     val blackBg = if (isDarkMode) Color(0xFF0F0F0F) else Color(0xFFF5F5F5)
     val cardBg = if (isDarkMode) Color(0xFF1A1A1A) else Color.White
@@ -87,7 +90,7 @@ fun SettingsScreen(
 
                 SettingsCard(title = "Account", icon = Icons.Default.Person, cyan = cyan, cardBg = cardBg) {
                     Column {
-                        Text("Username: admin", color = textColor, fontSize = 14.sp)
+                        Text("Username: ${sessionManager.getUsername() ?: "User"}", color = textColor, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Change Password", color = cyan, fontSize = 14.sp)
                     }
@@ -107,7 +110,10 @@ fun SettingsScreen(
                                 text = "On",
                                 color = if (notificationsEnabled) cyan else grayText,
                                 modifier = Modifier
-                                    .clickable { notificationsEnabled = true }
+                                    .clickable { 
+                                        notificationsEnabled = true
+                                        sessionManager.setNotificationsEnabled(true)
+                                    }
                                     .padding(horizontal = 12.dp, vertical = 4.dp),
                                 fontSize = 16.sp
                             )
@@ -116,7 +122,10 @@ fun SettingsScreen(
                                 text = "Off",
                                 color = if (!notificationsEnabled) cyan else grayText,
                                 modifier = Modifier
-                                    .clickable { notificationsEnabled = false }
+                                    .clickable { 
+                                        notificationsEnabled = false
+                                        sessionManager.setNotificationsEnabled(false)
+                                    }
                                     .padding(horizontal = 12.dp, vertical = 4.dp),
                                 fontSize = 16.sp
                             )

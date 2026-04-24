@@ -22,12 +22,15 @@ import androidx.navigation.NavController
 import com.example.casestudy.data.Announcement
 import com.example.casestudy.ui.viewmodel.AnnouncementViewModel
 import com.example.casestudy.util.SessionManager
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnnouncementsScreen(navController: NavController, viewModel: AnnouncementViewModel = viewModel()) {
 
     val announcements by viewModel.allAnnouncements.collectAsState(initial = emptyList())
+    val isLoading by viewModel.isLoading.collectAsState()
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
     val isAdmin = sessionManager.getUsername() == "admin"
@@ -85,7 +88,11 @@ fun AnnouncementsScreen(navController: NavController, viewModel: AnnouncementVie
                 drawCircle(Color(0xFF00BCD4).copy(alpha = 0.06f), 200f, Offset(size.width * 0.8f, size.height * 0.35f))
             }
 
-            if (announcements.isEmpty()) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = cyan)
+                }
+            } else if (announcements.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("No announcements yet.", color = Color.Gray)
                 }
@@ -148,7 +155,8 @@ fun AnnouncementsScreen(navController: NavController, viewModel: AnnouncementVie
                 Button(
                     onClick = {
                         if (title.isNotBlank() && content.isNotBlank()) {
-                            viewModel.addAnnouncement(title, content, "Today")
+                            val currentDate = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
+                            viewModel.addAnnouncement(title, content, currentDate)
                             title = ""
                             content = ""
                             showAddDialog = false
@@ -168,6 +176,7 @@ fun AnnouncementsScreen(navController: NavController, viewModel: AnnouncementVie
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnnouncementItem(
     announcement: Announcement,
