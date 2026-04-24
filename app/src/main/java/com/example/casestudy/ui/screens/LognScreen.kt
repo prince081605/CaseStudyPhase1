@@ -1,6 +1,7 @@
 package com.example.casestudy.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,19 +13,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.casestudy.ui.theme.*
 import com.example.casestudy.util.SessionManager
 
 @Composable
 fun LoginScreen(navController: NavController) {
-
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
 
@@ -33,162 +34,162 @@ fun LoginScreen(navController: NavController) {
     var error by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val cyan = Color(0xFF00BCD4)
-    val dark1 = Color(0xFF0F0F0F)
-    val dark2 = Color(0xFF121212)
-    val dark3 = Color(0xFF1A1A1A)
-    val white = Color.White
-
-    val gradientBackground = Brush.verticalGradient(
-        colors = listOf(dark1, dark2, dark3)
-    )
+    // Cartoonish Theme Colors
+    val bgColor = PastelYellow
+    val cardBg = Color.White
+    val accentColor = BubblegumPink
+    val textColor = DarkText
+    val borderColor = DarkText.copy(alpha = 0.2f)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(gradientBackground)
+            .background(bgColor),
+        contentAlignment = Alignment.Center
     ) {
-
+        // Playful background decoration
         Box(
             modifier = Modifier
-                .size(300.dp)
-                .align(Alignment.TopStart)
-                .offset(x = (-80).dp, y = (-80).dp)
-                .background(cyan.copy(alpha = 0.25f), CircleShape)
-                .blur(120.dp)
+                .size(150.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 40.dp, y = (-40).dp)
+                .background(MintGreen, CircleShape)
         )
-
         Box(
             modifier = Modifier
-                .size(260.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = 80.dp, y = 80.dp)
-                .background(cyan.copy(alpha = 0.2f), CircleShape)
-                .blur(120.dp)
+                .size(100.dp)
+                .align(Alignment.BottomStart)
+                .offset(x = (-30).dp, y = 30.dp)
+                .background(PastelBlue, CircleShape)
         )
 
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+                .border(width = 4.dp, color = textColor.copy(alpha = 0.1f), shape = RoundedCornerShape(32.dp)),
+            shape = RoundedCornerShape(32.dp),
+            colors = CardDefaults.cardColors(containerColor = cardBg),
+            elevation = CardDefaults.cardElevation(0.dp)
         ) {
-
-            Card(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
-                elevation = CardDefaults.cardElevation(12.dp)
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Text(
+                    text = "Welcome! \uD83D\uDC4B",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Black,
+                    color = textColor,
+                    fontSize = 32.sp
+                )
+                
+                Text(
+                    text = "Smart Campus Hub",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor.copy(alpha = 0.6f)
+                )
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(28.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                Spacer(modifier = Modifier.height(40.dp))
 
-                    Text(
-                        text = "Smart CC",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = cyan
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username", fontWeight = FontWeight.Bold) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = accentColor,
+                        unfocusedBorderColor = borderColor,
+                        focusedLabelColor = accentColor,
+                        unfocusedLabelColor = textColor.copy(alpha = 0.5f),
+                        focusedTextColor = textColor,
+                        unfocusedTextColor = textColor
                     )
+                )
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text("Username", color = white) },
-                        singleLine = true,
-                        shape = RoundedCornerShape(18.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = cyan,
-                            unfocusedBorderColor = white,
-                            focusedTextColor = white,
-                            unfocusedTextColor = white,
-                            cursorColor = cyan
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text("Password", color = white) },
-                        singleLine = true,
-                        shape = RoundedCornerShape(18.dp),
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password", fontWeight = FontWeight.Bold) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(
                                 imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                                 contentDescription = null,
-                                tint = cyan,
-                                modifier = Modifier.clickable {
-                                    passwordVisible = !passwordVisible
-                                }
+                                tint = textColor.copy(alpha = 0.5f)
                             )
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = cyan,
-                            unfocusedBorderColor = white,
-                            focusedTextColor = white,
-                            unfocusedTextColor = white,
-                            cursorColor = cyan
-                        )
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = accentColor,
+                        unfocusedBorderColor = borderColor,
+                        focusedLabelColor = accentColor,
+                        unfocusedLabelColor = textColor.copy(alpha = 0.5f),
+                        focusedTextColor = textColor,
+                        unfocusedTextColor = textColor
                     )
+                )
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    if (error.isNotEmpty()) {
-                        Text(
-                            text = error,
-                            color = Color.Red
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            // Phase 1 & 3: Mock Authentication with Roles
-                            if ((username == "admin" && password == "1234") || 
-                                (username == "student" && password == "1234")) {
-                                sessionManager.saveLogin(username)
-                                navController.navigate("dashboard") {
-                                    popUpTo("login") { inclusive = true }
-                                }
-                            } else {
-                                error = "Invalid credentials (try admin/1234 or student/1234)"
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(55.dp),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = cyan,
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Text(
-                            text = "Login",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
+                if (error.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Forgot Password?",
-                        color = cyan,
-                        modifier = Modifier.clickable { }
+                        text = error,
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
                     )
                 }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = {
+                        if ((username == "admin" && password == "1234") || 
+                            (username == "student" && password == "1234")) {
+                            sessionManager.saveLogin(username)
+                            navController.navigate("dashboard") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        } else {
+                            error = "Oops! Try admin/1234 or student/1234"
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = accentColor,
+                        contentColor = Color.White
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+                ) {
+                    Text(
+                        text = "Let's Go!",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Forgot Password?",
+                    color = textColor.copy(alpha = 0.4f),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable { }
+                )
             }
         }
     }
