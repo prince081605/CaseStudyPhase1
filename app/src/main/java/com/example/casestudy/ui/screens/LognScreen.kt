@@ -155,11 +155,15 @@ fun LoginScreen(navController: NavController) {
 
                     Button(
                         onClick = {
-                            if (username == "admin" && password == "1234") {
+                            // Phase 1 & 3: Mock Authentication with Roles
+                            if ((username == "admin" && password == "1234") || 
+                                (username == "student" && password == "1234")) {
                                 sessionManager.saveLogin(username)
-                                navController.navigate("dashboard")
+                                navController.navigate("dashboard") {
+                                    popUpTo("login") { inclusive = true }
+                                }
                             } else {
-                                error = "Invalid credentials"
+                                error = "Invalid credentials (try admin/1234 or student/1234)"
                             }
                         },
                         modifier = Modifier
