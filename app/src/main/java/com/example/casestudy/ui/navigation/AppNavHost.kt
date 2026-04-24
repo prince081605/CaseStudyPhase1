@@ -16,7 +16,7 @@ fun AppNavHost(
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
-            LoginScreen(navController)
+            LoginScreen(navController, isDarkMode)
         }
         composable("dashboard") {
             DashboardScreen(navController, isDarkMode)

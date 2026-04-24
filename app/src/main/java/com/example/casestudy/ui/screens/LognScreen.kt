@@ -25,7 +25,7 @@ import com.example.casestudy.ui.theme.*
 import com.example.casestudy.util.SessionManager
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
     val context = LocalContext.current
     val sessionManager = SessionManager(context)
 
@@ -35,11 +35,11 @@ fun LoginScreen(navController: NavController) {
     var passwordVisible by remember { mutableStateOf(false) }
 
     // Cartoonish Theme Colors
-    val bgColor = PastelYellow
-    val cardBg = Color.White
+    val bgColor = if (isDarkMode) Color(0xFF121212) else PastelYellow
+    val cardBg = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
     val accentColor = BubblegumPink
-    val textColor = DarkText
-    val borderColor = DarkText.copy(alpha = 0.2f)
+    val textColor = if (isDarkMode) Color.White else DarkText
+    val borderColor = if (isDarkMode) Color.White.copy(alpha = 0.2f) else DarkText.copy(alpha = 0.2f)
 
     Box(
         modifier = Modifier
@@ -47,20 +47,20 @@ fun LoginScreen(navController: NavController) {
             .background(bgColor),
         contentAlignment = Alignment.Center
     ) {
-        // Playful background decoration
+        // Playful background decoration (visible even in dark mode but more subtle)
         Box(
             modifier = Modifier
                 .size(150.dp)
                 .align(Alignment.TopEnd)
                 .offset(x = 40.dp, y = (-40).dp)
-                .background(MintGreen, CircleShape)
+                .background(if (isDarkMode) MintGreen.copy(alpha = 0.3f) else MintGreen, CircleShape)
         )
         Box(
             modifier = Modifier
                 .size(100.dp)
                 .align(Alignment.BottomStart)
                 .offset(x = (-30).dp, y = 30.dp)
-                .background(PastelBlue, CircleShape)
+                .background(if (isDarkMode) PastelBlue.copy(alpha = 0.3f) else PastelBlue, CircleShape)
         )
 
         Card(
