@@ -58,6 +58,12 @@ fun DashboardScreen(
     val secondaryAccent = PastelBlue
     val textColor = if (isDarkMode) Color.White else DarkText
     val borderColor = if (isDarkMode) Color(0xFF333333) else DarkText.copy(alpha = 0.2f)
+    
+    // Adjust stat card colors for dark mode to keep contrast with white text if desired, 
+    // or keep them pastel but ensure text is readable. 
+    // The user asked for WHITE text in dark mode.
+    val pendingCardBg = if (isDarkMode) MintGreen.copy(alpha = 0.2f) else MintGreen
+    val newsCardBg = if (isDarkMode) SoftLavender.copy(alpha = 0.2f) else SoftLavender
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -168,31 +174,33 @@ fun DashboardScreen(
                 ) {
                     CartoonCard(
                         modifier = Modifier.weight(1f),
-                        color = MintGreen,
+                        color = pendingCardBg,
+                        border = if (isDarkMode) MintGreen else Color.Transparent,
                         onClick = { navController.navigate("tasks") }
                     ) {
                         Column {
-                            Text("Pending", style = MaterialTheme.typography.labelLarge, color = DarkText)
+                            Text("Pending", style = MaterialTheme.typography.labelLarge, color = textColor)
                             Text(
                                 text = if (isTasksLoading) "..." else "$pendingTasksCount",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Black,
-                                color = DarkText
+                                color = textColor
                             )
                         }
                     }
                     CartoonCard(
                         modifier = Modifier.weight(1f),
-                        color = SoftLavender,
+                        color = newsCardBg,
+                        border = if (isDarkMode) SoftLavender else Color.Transparent,
                         onClick = { navController.navigate("announcements") }
                     ) {
                         Column {
-                            Text("News", style = MaterialTheme.typography.labelLarge, color = DarkText)
+                            Text("News", style = MaterialTheme.typography.labelLarge, color = textColor)
                             Text(
                                 text = if (isAnnouncementsLoading) "..." else "${announcements.size}",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Black,
-                                color = DarkText
+                                color = textColor
                             )
                         }
                     }
@@ -236,7 +244,7 @@ fun DashboardScreen(
                                 Text(
                                     latestAnnouncement?.date ?: "Today",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = Color.Gray
+                                    color = if (isDarkMode) Color.LightGray else Color.Gray
                                 )
                             }
                         }
@@ -259,7 +267,7 @@ fun DashboardScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("Read More", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text("Read More", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }
@@ -280,18 +288,24 @@ fun DashboardScreen(
                         label = "Campus", 
                         icon = Icons.Default.Map, 
                         color = SoftPeach,
+                        textColor = textColor,
+                        isDarkMode = isDarkMode,
                         onClick = { navController.navigate("campus") }
                     )
                     MenuIconBox(
                         label = "Settings", 
                         icon = Icons.Default.Settings, 
                         color = PastelPink,
+                        textColor = textColor,
+                        isDarkMode = isDarkMode,
                         onClick = { navController.navigate("settings") }
                     )
                     MenuIconBox(
                         label = "Tasks", 
                         icon = Icons.Default.Assignment, 
                         color = MintGreen,
+                        textColor = textColor,
+                        isDarkMode = isDarkMode,
                         onClick = { navController.navigate("tasks") }
                     )
                 }
@@ -327,7 +341,14 @@ fun CartoonCard(
 }
 
 @Composable
-fun ColumnScope.MenuIconBox(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
+fun RowScope.MenuIconBox(
+    label: String, 
+    icon: androidx.compose.ui.graphics.vector.ImageVector, 
+    color: Color, 
+    textColor: Color,
+    isDarkMode: Boolean,
+    onClick: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -337,33 +358,13 @@ fun ColumnScope.MenuIconBox(label: String, icon: androidx.compose.ui.graphics.ve
         Box(
             modifier = Modifier
                 .aspectRatio(1f)
-                .background(color, RoundedCornerShape(20.dp)),
+                .background(if (isDarkMode) color.copy(alpha = 0.2f) else color, RoundedCornerShape(20.dp))
+                .border(if (isDarkMode) 2.dp else 0.dp, color, RoundedCornerShape(20.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, null, tint = DarkText, modifier = Modifier.size(28.dp))
+            Icon(icon, null, tint = if (isDarkMode) color else DarkText, modifier = Modifier.size(28.dp))
         }
         Spacer(Modifier.height(4.dp))
-        Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = DarkText)
-    }
-}
-
-@Composable
-fun RowScope.MenuIconBox(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .weight(1f)
-            .clickable { onClick() }
-    ) {
-        Box(
-            modifier = Modifier
-                .aspectRatio(1f)
-                .background(color, RoundedCornerShape(20.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(icon, null, tint = DarkText, modifier = Modifier.size(28.dp))
-        }
-        Spacer(Modifier.height(4.dp))
-        Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = DarkText)
+        Text(label, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = textColor)
     }
 }
