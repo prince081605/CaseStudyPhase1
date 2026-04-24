@@ -51,6 +51,24 @@ fun DashboardScreen(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val drawerWidth = screenWidth * 0.7f
 
+    // Notification Logic
+    var showNotificationDialog by remember { mutableStateOf(false) }
+    var notificationMessage by remember { mutableStateOf("") }
+
+    LaunchedEffect(announcements) {
+        if (announcements.isNotEmpty()) {
+            val latestId = announcements.first().id
+            val lastSeenId = sessionManager.getLastSeenAnnouncementId()
+            
+            // If the latest announcement is different from the last one seen, and notifications are enabled
+            if (latestId != lastSeenId && sessionManager.isNotificationsEnabled() && username != "admin") {
+                notificationMessage = announcements.first().title
+                showNotificationDialog = true
+                sessionManager.saveLastSeenAnnouncementId(latestId)
+            }
+        }
+    }
+
     // Cartoonish Theme Colors
     val bgColor = if (isDarkMode) Color(0xFF121212) else PastelYellow
     val cardBg = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
@@ -59,11 +77,47 @@ fun DashboardScreen(
     val textColor = if (isDarkMode) Color.White else DarkText
     val borderColor = if (isDarkMode) Color(0xFF333333) else DarkText.copy(alpha = 0.2f)
     
-    // Adjust stat card colors for dark mode to keep contrast with white text if desired, 
-    // or keep them pastel but ensure text is readable. 
-    // The user asked for WHITE text in dark mode.
     val pendingCardBg = if (isDarkMode) MintGreen.copy(alpha = 0.2f) else MintGreen
     val newsCardBg = if (isDarkMode) SoftLavender.copy(alpha = 0.2f) else SoftLavender
+
+    if (showNotificationDialog) {
+        AlertDialog(
+            onDismissRequest = { showNotificationDialog = false },
+            title = { 
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Campaign, null, tint = accentColor, modifier = Modifier.size(32.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("New Announcement!", fontWeight = FontWeight.Black, color = textColor)
+                }
+            },
+            text = { 
+                Text(
+                    "Admin posted a new update: \"$notificationMessage\"",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = textColor
+                ) 
+            },
+            containerColor = cardBg,
+            confirmButton = {
+                Button(
+                    onClick = { 
+                        showNotificationDialog = false
+                        navController.navigate("announcements")
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = accentColor),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("View Now", color = DarkText, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNotificationDialog = false }) {
+                    Text("Later", color = Color.Gray)
+                }
+            },
+            modifier = Modifier.border(2.dp, accentColor, RoundedCornerShape(28.dp))
+        )
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,

@@ -19,7 +19,7 @@ class SessionManager(context: Context) {
     }
 
     fun isDarkMode(): Boolean {
-        return prefs.getBoolean("dark_mode", true) // Default to dark mode as requested by UI design
+        return prefs.getBoolean("dark_mode", true)
     }
 
     fun setNotificationsEnabled(enabled: Boolean) {
@@ -28,6 +28,14 @@ class SessionManager(context: Context) {
 
     fun isNotificationsEnabled(): Boolean {
         return prefs.getBoolean("notifications_enabled", true)
+    }
+
+    fun saveLastSeenAnnouncementId(id: String) {
+        prefs.edit().putString("last_seen_announcement_id", id).apply()
+    }
+
+    fun getLastSeenAnnouncementId(): String? {
+        return prefs.getString("last_seen_announcement_id", null)
     }
 
     fun logout() {
