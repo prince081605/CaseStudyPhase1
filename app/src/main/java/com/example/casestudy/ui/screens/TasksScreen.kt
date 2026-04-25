@@ -127,8 +127,9 @@ fun TasksScreen(navController: NavController, viewModel: TaskViewModel = viewMod
     ) { paddingValues ->
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -373,6 +374,28 @@ fun CartoonTaskItem(
                     Icon(Icons.Default.Delete, null, tint = Color.Red.copy(alpha = 0.6f))
                 }
             }
+        ) {
+            DatePicker(state = datePickerState)
         }
+    }
+
+    if (showTimePicker) {
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val cal = Calendar.getInstance()
+                    cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                    cal.set(Calendar.MINUTE, timePickerState.minute)
+                    selectedTime = sdfTime.format(cal.time)
+                    showTimePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            text = {
+                TimePicker(state = timePickerState)
+            }
+        )
     }
 }

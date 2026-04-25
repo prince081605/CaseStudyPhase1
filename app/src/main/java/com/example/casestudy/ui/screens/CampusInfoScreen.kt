@@ -29,11 +29,12 @@ fun CampusInfoScreen(navController: NavController) {
     val isDarkMode = sessionManager.isDarkMode()
 
     val departments = listOf(
-        "College of Computing Studies",
-        "College of Engineering",
-        "College of Education",
-        "College of Business and Accountancy",
-        "College of Arts and Sciences"
+        "College of Computing Studies" to R.drawable.ccs,
+        "College of Engineering" to R.drawable.coe,
+        "College of Education" to R.drawable.coed,
+        "College of Business and Accountancy" to R.drawable.cbaa,
+        "College of Arts and Sciences" to R.drawable.cas,
+        "College of Health and Allied Sciences" to R.drawable.chas
     )
 
     // Cartoonish Theme Colors
@@ -180,7 +181,7 @@ fun CartoonInfoCard(
         shape = RoundedCornerShape(24.dp),
         color = color
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier

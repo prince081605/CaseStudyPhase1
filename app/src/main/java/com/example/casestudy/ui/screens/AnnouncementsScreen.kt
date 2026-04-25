@@ -163,6 +163,25 @@ fun AnnouncementsScreen(
                             accentColor = secondaryAccent
                         )
                     }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(announcements) { announcement ->
+                            AnnouncementItem(
+                                announcement = announcement,
+                                onMarkAsRead = {
+                                    viewModel.updateAnnouncement(announcement.copy(isRead = true))
+                                },
+                                onMarkAsUnread = {
+                                    viewModel.updateAnnouncement(announcement.copy(isRead = false))
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }

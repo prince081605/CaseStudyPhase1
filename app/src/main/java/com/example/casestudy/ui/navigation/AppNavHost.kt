@@ -1,37 +1,42 @@
 package com.example.casestudy.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.casestudy.ui.screens.*
+import com.example.casestudy.ui.viewmodel.MainViewModel
 
 @Composable
 fun AppNavHost(
-    startDestination: String = "login",
-    isDarkMode: Boolean,
-    onThemeChange: (Boolean) -> Unit
+    viewModel: MainViewModel,
+    startDestination: String = "selection"
 ) {
     val navController = rememberNavController()
+    val isDarkMode by viewModel.isDarkMode.collectAsState()
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
             LoginScreen(navController, isDarkMode)
         }
         composable("dashboard") {
-            DashboardScreen(navController, isDarkMode)
+            DashboardScreen(navController, viewModel)
         }
         composable("campus") {
             CampusInfoScreen(navController)
         }
         composable("tasks") {
-            TasksScreen(navController)
+            TasksScreen(navController, viewModel)
         }
         composable("announcements") {
-            AnnouncementsScreen(navController)
+            AnnouncementsScreen(navController, viewModel)
         }
         composable("settings") {
-            SettingsScreen(navController, isDarkMode, onThemeChange)
+            SettingsScreen(navController, viewModel)
         }
     }
 }

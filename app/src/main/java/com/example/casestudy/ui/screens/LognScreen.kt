@@ -1,12 +1,18 @@
 package com.example.casestudy.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -24,10 +30,11 @@ import androidx.navigation.NavController
 import com.example.casestudy.ui.theme.*
 import com.example.casestudy.util.SessionManager
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
     val context = LocalContext.current
-    val sessionManager = SessionManager(context)
+    val sessionManager = com.example.casestudy.util.SessionManager(context)
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
