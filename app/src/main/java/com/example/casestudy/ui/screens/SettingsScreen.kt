@@ -1,6 +1,8 @@
 package com.example.casestudy.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,11 +19,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.casestudy.ui.theme.CyanPrimary
+import com.example.casestudy.ui.theme.ErrorRed
 import com.example.casestudy.ui.viewmodel.MainViewModel
 import com.example.casestudy.util.SessionManager
 
@@ -318,23 +322,48 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text("Change Password") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = newPassword,
-                    onValueChange = { newPassword = it },
+                    onValueChange = { 
+                        newPassword = it
+                        if (error.isNotEmpty()) error = ""
+                    },
                     label = { Text("New Password") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    isError = error.isNotEmpty(),
+                    visualTransformation = PasswordVisualTransformation()
                 )
                 OutlinedTextField(
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
+                    onValueChange = { 
+                        confirmPassword = it
+                        if (error.isNotEmpty()) error = ""
+                    },
                     label = { Text("Confirm Password") },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    isError = error.isNotEmpty(),
+                    visualTransformation = PasswordVisualTransformation()
                 )
-                if (error.isNotEmpty()) {
-                    Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                
+                AnimatedVisibility(
+                    visible = error.isNotEmpty(),
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(ErrorRed.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(error, color = ErrorRed, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
             }
         },
