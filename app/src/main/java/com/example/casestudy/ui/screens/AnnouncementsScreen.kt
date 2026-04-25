@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -50,22 +52,53 @@ fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) 
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(announcements) { announcement ->
-                        AnnouncementItem(
-                            announcement = announcement,
-                            onMarkAsRead = {
-                                viewModel.updateAnnouncement(announcement.copy(isRead = true))
-                            },
-                            onMarkAsUnread = {
-                                viewModel.updateAnnouncement(announcement.copy(isRead = false))
-                            }
+                if (announcements.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Campaign,
+                            contentDescription = null,
+                            modifier = Modifier.size(80.dp),
+                            tint = primaryColor.copy(alpha = 0.3f)
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No Announcements Yet",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = textColor,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Stay tuned! We'll notify you when there's something new from the campus.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = textColor.copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(announcements) { announcement ->
+                            AnnouncementItem(
+                                announcement = announcement,
+                                onMarkAsRead = {
+                                    viewModel.updateAnnouncement(announcement.copy(isRead = true))
+                                },
+                                onMarkAsUnread = {
+                                    viewModel.updateAnnouncement(announcement.copy(isRead = false))
+                                }
+                            )
+                        }
                     }
                 }
             }

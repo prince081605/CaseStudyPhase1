@@ -11,12 +11,14 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.casestudy.data.Task
@@ -67,8 +69,33 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
                     .padding(paddingValues)
             ) {
                 if (tasks.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No tasks yet. Tap + to add one!", color = textColor.copy(alpha = 0.6f))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Assignment,
+                            contentDescription = null,
+                            modifier = Modifier.size(80.dp),
+                            tint = primaryColor.copy(alpha = 0.3f)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No Tasks Yet",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = textColor,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Stay organized! Tap the + button to add your assignments, exams, or projects.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = textColor.copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 } else {
                     LazyColumn(
