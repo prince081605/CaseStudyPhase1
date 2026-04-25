@@ -5,9 +5,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "announcements")
 data class Announcement(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val title: String,
-    val content: String,
-    val date: String,
-    val isRead: Boolean = false
+    @PrimaryKey val id: String = "", // Changed to String for Firestore ID
+    val title: String = "",
+    val content: String = "",
+    val date: String = "",
+    val isRead: Boolean = false,
+    val author: String = "Admin"
 )

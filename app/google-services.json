@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "224244911880",
+    "project_id": "case-study-24bd6",
+    "storage_bucket": "case-study-24bd6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:224244911880:android:6a747aaaffd7ff929a66bd",
+        "android_client_info": {
+          "package_name": "com.example.casestudy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwNgebGIrayiTg5KJS3vBRVpMNTcYrXc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

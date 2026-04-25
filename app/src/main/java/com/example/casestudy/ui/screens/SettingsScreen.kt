@@ -1,9 +1,7 @@
 package com.example.casestudy.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,297 +13,169 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-import com.example.casestudy.ui.theme.CyanPrimary
-import com.example.casestudy.ui.theme.ErrorRed
-import com.example.casestudy.ui.viewmodel.MainViewModel
+import com.example.casestudy.ui.theme.*
 import com.example.casestudy.util.SessionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController, viewModel: MainViewModel) {
+fun SettingsScreen(
+    navController: NavController,
+    isDarkMode: Boolean,
+    onThemeChange: (Boolean) -> Unit
+) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
-    val username = sessionManager.getUsername() ?: "User"
+    var notificationsEnabled by remember { mutableStateOf(sessionManager.isNotificationsEnabled()) }
 
-    val isDarkMode by viewModel.isDarkMode.collectAsState()
-    var notificationsEnabled by remember { mutableStateOf(true) }
-    
-    var showAccountDetails by remember { mutableStateOf(false) }
-    var showPrivacyDetails by remember { mutableStateOf(false) }
-    var showPasswordDialog by remember { mutableStateOf(false) }
+    // Cartoonish Theme Colors
+    val bgColor = if (isDarkMode) Color(0xFF121212) else PastelYellow
+    val cardBg = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
+    val textColor = if (isDarkMode) Color.White else DarkText
+    val accentColor = PastelPink
+    val borderColor = if (isDarkMode) Color(0xFF333333) else DarkText.copy(alpha = 0.1f)
 
-    val cardColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-    val textColor = MaterialTheme.colorScheme.onBackground
-    val iconColor = MaterialTheme.colorScheme.primary
-
-    AppBackground {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Settings", color = textColor) },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { 
+                    Text(
+                        "Settings", 
+                        fontWeight = FontWeight.ExtraBold,
+                        color = textColor
+                    ) 
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
                 )
-            },
-            containerColor = Color.Transparent
-        ) { paddingValues ->
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                ) {
-
-                    // Account Section (Expandable Card)
-                    SettingsExpandableCard(
-                        title = "Account",
-                        icon = Icons.Default.Person,
-                        expanded = showAccountDetails,
-                        onExpandChange = { showAccountDetails = it },
-                        iconColor = iconColor,
-                        cardColor = cardColor
-                    ) {
-                        Column(modifier = Modifier.padding(top = 16.dp)) {
-                            Divider(color = textColor.copy(alpha = 0.1f))
-                            Spacer(modifier = Modifier.height(16.dp))
-                            
-                            Text(
-                                text = "Username",
-                                color = textColor.copy(alpha = 0.6f),
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                            Text(
-                                text = username,
-                                color = textColor,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            
-                            Spacer(modifier = Modifier.height(16.dp))
-                            
-                            Button(
-                                onClick = { showPasswordDialog = true },
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(containerColor = iconColor.copy(alpha = 0.1f)),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Icon(Icons.Default.LockReset, contentDescription = null, tint = iconColor, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Change Password", color = iconColor)
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    SettingsCard(title = "Notifications", icon = Icons.Default.Notifications, cyan = iconColor, cardColor = cardColor) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Enable Notifications", color = textColor)
-                            Switch(
-                                checked = notificationsEnabled,
-                                onCheckedChange = { notificationsEnabled = it },
-                                colors = SwitchDefaults.colors(checkedThumbColor = CyanPrimary, checkedTrackColor = CyanPrimary.copy(alpha = 0.3f))
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    SettingsCard(title = "Appearance", icon = Icons.Default.DarkMode, cyan = iconColor, cardColor = cardColor) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Dark Mode", color = textColor)
-                            Switch(
-                                checked = isDarkMode,
-                                onCheckedChange = { viewModel.toggleDarkMode(it) },
-                                colors = SwitchDefaults.colors(checkedThumbColor = CyanPrimary, checkedTrackColor = CyanPrimary.copy(alpha = 0.3f))
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    SettingsCard(title = "Language", icon = Icons.Default.Language, cyan = iconColor, cardColor = cardColor) {
-                        Text("English", color = textColor.copy(alpha = 0.6f))
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Privacy & Security (Floating Container Style)
-                    SettingsCard(
-                        title = "Privacy & Security", 
-                        icon = Icons.Default.Security, 
-                        cyan = iconColor, 
-                        cardColor = cardColor
-                    ) {
-                        Column {
-                            PrivacyItem(text = "Two-Factor Authentication", icon = Icons.Default.VpnKey, iconColor = iconColor, textColor = textColor)
-                            PrivacyItem(text = "App Permissions", icon = Icons.Default.VerifiedUser, iconColor = iconColor, textColor = textColor)
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            TextButton(
-                                onClick = { showPrivacyDetails = true },
-                                modifier = Modifier.align(Alignment.End)
-                            ) {
-                                Text("View More", color = iconColor)
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-            }
-        }
-
-        // Change Password Dialog (Floating Style)
-        if (showPasswordDialog) {
-            ChangePasswordDialog(
-                onDismiss = { showPasswordDialog = false },
-                onConfirm = { newPassword ->
-                    sessionManager.savePassword(newPassword)
-                    showPasswordDialog = false
-                }
             )
-        }
-        
-        // Privacy More Details (Floating Container / Bottom Sheet style Dialog)
-        if (showPrivacyDetails) {
-            Dialog(onDismissRequest = { showPrivacyDetails = false }) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(28.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        },
+        containerColor = bgColor
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            CartoonSettingsCard(
+                title = "Appearance",
+                icon = if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+                color = cardBg,
+                border = borderColor,
+                accentColor = PastelBlue,
+                textColor = textColor
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(Icons.Default.Security, contentDescription = null, tint = iconColor, modifier = Modifier.size(48.dp))
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text("Privacy & Security", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Manage your account security and data privacy settings here.",
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            color = textColor.copy(alpha = 0.6f)
+                    Text("Dark Mode", fontWeight = FontWeight.Bold, color = textColor)
+                    Switch(
+                        checked = isDarkMode,
+                        onCheckedChange = { onThemeChange(it) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = PastelBlue
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        FloatingPrivacyOption("Data Encryption", "Your data is secured", iconColor)
-                        FloatingPrivacyOption("Active Sessions", "2 devices active", iconColor)
-                        FloatingPrivacyOption("Clear Cache", "Freed up 24MB", iconColor)
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        Button(
-                            onClick = { showPrivacyDetails = false },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Text("Close")
-                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CartoonSettingsCard(
+                title = "Notifications",
+                icon = Icons.Default.Notifications,
+                color = cardBg,
+                border = borderColor,
+                accentColor = MintGreen,
+                textColor = textColor
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Enable Notifications", fontWeight = FontWeight.Bold, color = textColor)
+                    Switch(
+                        checked = notificationsEnabled,
+                        onCheckedChange = { 
+                            notificationsEnabled = it
+                            sessionManager.setNotificationsEnabled(it)
+                        },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = MintGreen
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CartoonSettingsCard(
+                title = "Account",
+                icon = Icons.Default.Person,
+                color = cardBg,
+                border = borderColor,
+                accentColor = SoftPeach,
+                textColor = textColor
+            ) {
+                Column {
+                    Text("User: ${sessionManager.getUsername() ?: "User"}", color = textColor)
+                    Spacer(Modifier.height(8.dp))
+                    TextButton(onClick = { }, contentPadding = PaddingValues(0.dp)) {
+                        Text("Change Password", color = BubblegumPink, fontWeight = FontWeight.Bold)
                     }
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun PrivacyItem(text: String, icon: ImageVector, iconColor: Color, textColor: Color, onClick: () -> Unit = {}) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(icon, contentDescription = null, tint = iconColor.copy(alpha = 0.7f), modifier = Modifier.size(20.dp))
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(text, color = textColor, fontSize = 15.sp)
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = textColor.copy(alpha = 0.3f))
-    }
-}
+            Spacer(modifier = Modifier.height(16.dp))
 
-@Composable
-fun FloatingPrivacyOption(title: String, subtitle: String, color: Color) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .background(color.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-            Text(title, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-        }
-    }
-}
-
-@Composable
-fun SettingsExpandableCard(
-    title: String,
-    icon: ImageVector,
-    expanded: Boolean,
-    onExpandChange: (Boolean) -> Unit,
-    iconColor: Color,
-    cardColor: Color,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onExpandChange(!expanded) },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(28.dp))
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(title, color = iconColor, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.weight(1f))
-                Icon(
-                    if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = iconColor
-                )
+            CartoonSettingsCard(
+                title = "App Info",
+                icon = Icons.Default.Info,
+                color = cardBg,
+                border = borderColor,
+                accentColor = SoftLavender,
+                textColor = textColor
+            ) {
+                Column {
+                    Text("Version 1.0.0", color = textColor.copy(alpha = 0.6f))
+                    Text("Case Study Project", color = textColor.copy(alpha = 0.6f))
+                }
             }
-            AnimatedVisibility(visible = expanded) {
-                content()
+
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Button(
+                onClick = {
+                    sessionManager.logout()
+                    navController.navigate("login") {
+                        popUpTo("dashboard") { inclusive = true }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.7f))
+            ) {
+                Icon(Icons.Default.Logout, null, tint = Color.White)
+                Spacer(Modifier.width(8.dp))
+                Text("Logout", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -389,18 +259,43 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
 }
 
 @Composable
-fun SettingsCard(title: String, icon: ImageVector, cyan: Color, cardColor: Color, content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
-        elevation = CardDefaults.cardElevation(0.dp)
+fun CartoonSettingsCard(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    border: Color,
+    accentColor: Color,
+    textColor: Color,
+    content: @Composable () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = border,
+                shape = RoundedCornerShape(24.dp)
+            ),
+        shape = RoundedCornerShape(24.dp),
+        color = color
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = null, tint = cyan, modifier = Modifier.size(28.dp))
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(title, color = cyan, style = MaterialTheme.typography.titleMedium)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(accentColor, RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, null, tint = DarkText, modifier = Modifier.size(24.dp))
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 18.sp,
+                    color = textColor
+                )
             }
             Spacer(modifier = Modifier.height(16.dp))
             content()

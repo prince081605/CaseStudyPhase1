@@ -23,11 +23,23 @@ class SessionManager(context: Context) {
     }
 
     fun isDarkMode(): Boolean {
-        return prefs.getBoolean("is_dark_mode", true)
+        return prefs.getBoolean("dark_mode", true)
     }
 
-    fun setDarkMode(enabled: Boolean) {
-        prefs.edit().putBoolean("is_dark_mode", enabled).apply()
+    fun setNotificationsEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean("notifications_enabled", enabled).apply()
+    }
+
+    fun isNotificationsEnabled(): Boolean {
+        return prefs.getBoolean("notifications_enabled", true)
+    }
+
+    fun saveLastSeenAnnouncementId(id: String) {
+        prefs.edit().putString("last_seen_announcement_id", id).apply()
+    }
+
+    fun getLastSeenAnnouncementId(): String? {
+        return prefs.getString("last_seen_announcement_id", null)
     }
 
     fun logout() {
