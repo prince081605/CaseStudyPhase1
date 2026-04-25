@@ -1,7 +1,7 @@
 package com.example.casestudy.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -12,19 +12,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.casestudy.R
+import com.example.casestudy.ui.theme.*
+import com.example.casestudy.util.SessionManager
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CampusInfoScreen(navController: NavController) {
+    val context = LocalContext.current
+    val sessionManager = SessionManager(context)
+    val isDarkMode = sessionManager.isDarkMode()
 
     val departments = listOf(
         "College of Computing Studies" to R.drawable.ccs,
@@ -35,112 +37,122 @@ fun CampusInfoScreen(navController: NavController) {
         "College of Health and Allied Sciences" to R.drawable.chas
     )
 
-    val cardColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-    val textColor = MaterialTheme.colorScheme.onBackground
-    val primaryColor = MaterialTheme.colorScheme.primary
+    // Cartoonish Theme Colors
+    val bgColor = if (isDarkMode) Color(0xFF121212) else PastelYellow
+    val cardBg = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
+    val textColor = if (isDarkMode) Color.White else DarkText
+    val accentColor = PastelBlue
+    val secondaryAccent = SoftLavender
+    val borderColor = if (isDarkMode) Color(0xFF333333) else DarkText.copy(alpha = 0.1f)
 
-    AppBackground {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Campus Information", color = textColor) },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { 
+                    Text(
+                        "Campus Info", 
+                        fontWeight = FontWeight.ExtraBold,
+                        color = textColor
+                    ) 
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
                 )
-            },
-            containerColor = Color.Transparent
-        ) { paddingValues ->
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
+            )
+        },
+        containerColor = bgColor
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+        ) {
+            // Academic Colleges Card
+            CartoonInfoCard(
+                title = "Academic Colleges",
+                icon = Icons.Default.School,
+                color = cardBg,
+                border = borderColor,
+                accentColor = accentColor,
+                textColor = textColor
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    AcademicCollegesCard(departments, cardColor, primaryColor, textColor)
-                    Spacer(modifier = Modifier.height(20.dp))
-                    ContactInfoCard(cardColor, primaryColor, textColor)
-                    Spacer(modifier = Modifier.height(20.dp))
-                    AdminOfficeHoursCard(cardColor, primaryColor, textColor)
+                    departments.forEach { dept ->
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = accentColor.copy(alpha = 0.3f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, accentColor.copy(alpha = 0.5f))
+                        ) {
+                            Text(
+                                text = dept,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = textColor
+                            )
+                        }
+                    }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun AcademicCollegesCard(
-    departments: List<Pair<String, Int>>,
-    cardColor: Color,
-    primaryColor: Color,
-    textColor: Color
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.School,
-                    contentDescription = null,
-                    tint = primaryColor,
-                    modifier = Modifier.size(26.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Academic Colleges",
-                    color = primaryColor,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            departments.forEachIndexed { index, department ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = department.second),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surface),
-                        contentScale = ContentScale.Crop
-                    )
+            // Contact Info Card
+            CartoonInfoCard(
+                title = "Contact Details",
+                icon = Icons.Default.ContactMail,
+                color = cardBg,
+                border = borderColor,
+                accentColor = MintGreen,
+                textColor = textColor
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    ContactRow(Icons.Default.Email, "info@pnc.edu.ph", textColor)
+                    ContactRow(Icons.Default.Phone, "(049) 545-5453", textColor)
+                    ContactRow(Icons.Default.LocationOn, "Barangay Banay-Banay, Cabuyao City, Laguna", textColor)
+                }
+            }
 
-                    Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
+            // Office Hours Card
+            CartoonInfoCard(
+                title = "Office Hours",
+                icon = Icons.Default.Schedule,
+                color = cardBg,
+                border = borderColor,
+                accentColor = secondaryAccent,
+                textColor = textColor
+            ) {
+                Column {
                     Text(
-                        text = department.first,
+                        "Monday to Friday", 
+                        fontWeight = FontWeight.Bold, 
                         color = textColor,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.weight(1f),
-                        fontSize = 15.sp
+                        style = MaterialTheme.typography.bodyLarge
                     )
-                }
-
-                if (index < departments.size - 1) {
-                    HorizontalDivider(
-                        color = textColor.copy(alpha = 0.1f),
-                        modifier = Modifier.padding(start = 66.dp)
+                    Text(
+                        "8:00 AM – 5:00 PM", 
+                        color = textColor.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Closed on weekends and holidays",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
             }
@@ -149,59 +161,55 @@ fun AcademicCollegesCard(
 }
 
 @Composable
-fun ContactInfoCard(cardColor: Color, primaryColor: Color, textColor: Color) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
+fun CartoonInfoCard(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    border: Color,
+    accentColor: Color,
+    textColor: Color,
+    content: @Composable () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 2.dp,
+                color = border,
+                shape = RoundedCornerShape(24.dp)
+            ),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
-        elevation = CardDefaults.cardElevation(0.dp)
+        color = color
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.ContactMail, contentDescription = null, tint = primaryColor, modifier = Modifier.size(26.dp))
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(accentColor, RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, null, tint = DarkText, modifier = Modifier.size(24.dp))
+                }
                 Spacer(modifier = Modifier.width(12.dp))
-                Text("Campus Contact Information", color = primaryColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Black,
+                    fontSize = 18.sp,
+                    color = textColor
+                )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            InfoRow(Icons.Default.Email, "info@pnc.edu.ph", primaryColor, textColor)
-            InfoRow(Icons.Default.Phone, "(049) 545-5453", primaryColor, textColor)
-            InfoRow(Icons.Default.LocationOn, "Barangay Banay-Banay, Cabuyao City, Laguna", primaryColor, textColor)
+            content()
         }
     }
 }
 
 @Composable
-fun AdminOfficeHoursCard(cardColor: Color, primaryColor: Color, textColor: Color) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Schedule, contentDescription = null, tint = primaryColor, modifier = Modifier.size(26.dp))
-                Spacer(modifier = Modifier.width(12.dp))
-                Text("Administrative Office Hours", color = primaryColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Monday to Friday", color = textColor, style = MaterialTheme.typography.bodyLarge)
-            Text("8:00 AM – 5:00 PM", color = textColor, style = MaterialTheme.typography.bodyLarge)
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                "Closed during weekends and official holidays",
-                color = textColor.copy(alpha = 0.6f),
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}
-
-@Composable
-fun InfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, iconColor: Color, textColor: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 6.dp)) {
-        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(22.dp))
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(text, color = textColor, style = MaterialTheme.typography.bodyLarge, fontSize = 15.sp)
+fun ContactRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, textColor: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(text, color = textColor, fontSize = 14.sp)
     }
 }

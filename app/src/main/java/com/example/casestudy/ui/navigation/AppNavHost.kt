@@ -20,15 +20,8 @@ fun AppNavHost(
     val isDarkMode by viewModel.isDarkMode.collectAsState()
 
     NavHost(navController = navController, startDestination = startDestination) {
-        composable("selection") {
-            UserSelectionScreen(navController)
-        }
-        composable(
-            route = "login/{userType}",
-            arguments = listOf(navArgument("userType") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val userType = backStackEntry.arguments?.getString("userType") ?: "student"
-            LoginScreen(navController, userType)
+        composable("login") {
+            LoginScreen(navController, isDarkMode)
         }
         composable("dashboard") {
             DashboardScreen(navController, viewModel)

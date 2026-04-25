@@ -8,41 +8,16 @@ val CyanPrimary = Color(0xFF00BCD4)
 val CyanSecondary = Color(0xFF26C6DA)
 val CyanTertiary = Color(0xFF80DEEA)
 
-val DarkBackground = Color(0xFF0F0F0F)
-val DarkSurface = Color(0xFF1A1A1A)
-val DarkSurfaceVariant = Color(0xFF252525)
+val Purple40 = Color(0xFF6650a4)
+val PurpleGrey40 = Color(0xFF625b71)
+val Pink40 = Color(0xFF7D5260)
 
-// Modern Light Theme Palette (Cyan/White)
-val LightBackground = Color(0xFFFFFFFF)
-val LightSurface = Color(0xFFF0F8FA)
-val LightSurfaceVariant = Color(0xFFE0F7FA)
-
-// Text Colors
-val OnLightBackground = Color(0xFF00363D) // Dark Cyan/Teal instead of pure black
-val OnLightSurface = Color(0xFF00363D)
-
-val White = Color(0xFFFFFFFF)
-val LightGray = Color(0xFFAAAAAA)
-val ErrorRed = Color(0xFFE53935)
-val SuccessGreen = Color(0xFF4CAF50)
-
-// Gradients
-val PrimaryGradient = Brush.verticalGradient(
-    colors = listOf(DarkBackground, DarkSurface, Color(0xFF121212))
-)
-
-val LightPrimaryGradient = Brush.verticalGradient(
-    colors = listOf(LightBackground, LightSurface, Color(0xFFF0F0F0))
-)
-
-val CyanGradient = Brush.linearGradient(
-    colors = listOf(CyanPrimary, CyanSecondary)
-)
-
-val LoginBackgroundGradient = Brush.verticalGradient(
-    colors = listOf(
-        Color(0xFF081214),
-        Color(0xFF0F2027),
-        Color(0xFF203A43)
-    )
-)
+// Soft Cartoonish Colors
+val PastelBlue = Color(0xFFAED9E0)
+val PastelPink = Color(0xFFFAF3DD)
+val PastelYellow = Color(0xFFFFF4E0)
+val SoftPeach = Color(0xFFFFDAB9)
+val MintGreen = Color(0xFFB8F2E6)
+val BubblegumPink = Color(0xFFFFA4BD)
+val SoftLavender = Color(0xFFE8E1EF)
+val DarkText = Color(0xFF2D3142)
