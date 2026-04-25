@@ -1,7 +1,6 @@
 package com.example.casestudy.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,46 +27,46 @@ import com.example.casestudy.ui.viewmodel.MainViewModel
 fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) {
     val announcements by viewModel.announcements.collectAsState()
 
-    // Dynamic colors
-    val backgroundColor = MaterialTheme.colorScheme.background
     val textColor = MaterialTheme.colorScheme.onBackground
     val primaryColor = MaterialTheme.colorScheme.primary
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Announcements", color = textColor) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
-        },
-        containerColor = backgroundColor
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            LazyColumn(
+    AppBackground {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Announcements", color = textColor) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                )
+            },
+            containerColor = Color.Transparent
+        ) { paddingValues ->
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(paddingValues)
             ) {
-                items(announcements) { announcement ->
-                    AnnouncementItem(
-                        announcement = announcement,
-                        onMarkAsRead = {
-                            viewModel.updateAnnouncement(announcement.copy(isRead = true))
-                        },
-                        onMarkAsUnread = {
-                            viewModel.updateAnnouncement(announcement.copy(isRead = false))
-                        }
-                    )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(announcements) { announcement ->
+                        AnnouncementItem(
+                            announcement = announcement,
+                            onMarkAsRead = {
+                                viewModel.updateAnnouncement(announcement.copy(isRead = true))
+                            },
+                            onMarkAsUnread = {
+                                viewModel.updateAnnouncement(announcement.copy(isRead = false))
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -81,7 +80,6 @@ fun AnnouncementItem(
     onMarkAsRead: () -> Unit,
     onMarkAsUnread: () -> Unit
 ) {
-    // Dynamic colors inside item
     val cardColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
     val textColor = MaterialTheme.colorScheme.onBackground
     val primaryColor = MaterialTheme.colorScheme.primary

@@ -35,43 +35,43 @@ fun CampusInfoScreen(navController: NavController) {
         "College of Health and Allied Sciences" to R.drawable.chas
     )
 
-    // Dynamic colors
-    val backgroundColor = MaterialTheme.colorScheme.background
     val cardColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
     val textColor = MaterialTheme.colorScheme.onBackground
     val primaryColor = MaterialTheme.colorScheme.primary
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Campus Information", color = textColor) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
-        },
-        containerColor = backgroundColor
-    ) { paddingValues ->
+    AppBackground {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Campus Information", color = textColor) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                )
+            },
+            containerColor = Color.Transparent
+        ) { paddingValues ->
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .padding(paddingValues)
             ) {
-                AcademicCollegesCard(departments, cardColor, primaryColor, textColor)
-                Spacer(modifier = Modifier.height(20.dp))
-                ContactInfoCard(cardColor, primaryColor, textColor)
-                Spacer(modifier = Modifier.height(20.dp))
-                AdminOfficeHoursCard(cardColor, primaryColor, textColor)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp)
+                ) {
+                    AcademicCollegesCard(departments, cardColor, primaryColor, textColor)
+                    Spacer(modifier = Modifier.height(20.dp))
+                    ContactInfoCard(cardColor, primaryColor, textColor)
+                    Spacer(modifier = Modifier.height(20.dp))
+                    AdminOfficeHoursCard(cardColor, primaryColor, textColor)
+                }
             }
         }
     }

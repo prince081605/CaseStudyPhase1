@@ -1,6 +1,5 @@
 package com.example.casestudy.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,81 +31,81 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
     var showAddDialog by remember { mutableStateOf(false) }
     var taskToEdit by remember { mutableStateOf<Task?>(null) }
 
-    // Dynamic colors
-    val backgroundColor = MaterialTheme.colorScheme.background
     val textColor = MaterialTheme.colorScheme.onBackground
     val primaryColor = MaterialTheme.colorScheme.primary
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Academic Tasks", color = textColor) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
-        },
-        containerColor = backgroundColor,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { 
-                    taskToEdit = null
-                    showAddDialog = true 
-                },
-                containerColor = primaryColor,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Task")
-            }
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            if (tasks.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No tasks yet. Tap + to add one!", color = textColor.copy(alpha = 0.6f))
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+    AppBackground {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Academic Tasks", color = textColor) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                )
+            },
+            containerColor = Color.Transparent,
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { 
+                        taskToEdit = null
+                        showAddDialog = true 
+                    },
+                    containerColor = primaryColor,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    items(tasks) { task ->
-                        TaskItem(
-                            task = task,
-                            onToggle = { viewModel.updateTask(task.copy(isCompleted = !task.isCompleted)) },
-                            onDelete = { viewModel.deleteTask(task) },
-                            onEdit = {
-                                taskToEdit = task
-                                showAddDialog = true
-                            }
-                        )
+                    Icon(Icons.Default.Add, contentDescription = "Add Task")
+                }
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                if (tasks.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("No tasks yet. Tap + to add one!", color = textColor.copy(alpha = 0.6f))
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(tasks) { task ->
+                            TaskItem(
+                                task = task,
+                                onToggle = { viewModel.updateTask(task.copy(isCompleted = !task.isCompleted)) },
+                                onDelete = { viewModel.deleteTask(task) },
+                                onEdit = {
+                                    taskToEdit = task
+                                    showAddDialog = true
+                                }
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        if (showAddDialog) {
-            TaskDialog(
-                task = taskToEdit,
-                onDismiss = { showAddDialog = false },
-                onSave = { title, dateTime ->
-                    if (taskToEdit == null) {
-                        viewModel.addTask(Task(title = title, description = "", dueDate = dateTime))
-                    } else {
-                        viewModel.updateTask(taskToEdit!!.copy(title = title, dueDate = dateTime))
+            if (showAddDialog) {
+                TaskDialog(
+                    task = taskToEdit,
+                    onDismiss = { showAddDialog = false },
+                    onSave = { title, dateTime ->
+                        if (taskToEdit == null) {
+                            viewModel.addTask(Task(title = title, description = "", dueDate = dateTime))
+                        } else {
+                            viewModel.updateTask(taskToEdit!!.copy(title = title, dueDate = dateTime))
+                        }
+                        showAddDialog = false
                     }
-                    showAddDialog = false
-                }
-            )
+                )
+            }
         }
     }
 }
