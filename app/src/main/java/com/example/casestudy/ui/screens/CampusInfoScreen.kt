@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.casestudy.R
 import com.example.casestudy.ui.theme.*
 import com.example.casestudy.util.SessionManager
 
@@ -95,7 +96,7 @@ fun CampusInfoScreen(navController: NavController) {
                             border = androidx.compose.foundation.BorderStroke(1.dp, accentColor.copy(alpha = 0.5f))
                         ) {
                             Text(
-                                text = dept,
+                                text = dept.first,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,

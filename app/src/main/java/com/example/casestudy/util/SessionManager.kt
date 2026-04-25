@@ -26,6 +26,10 @@ class SessionManager(context: Context) {
         return prefs.getBoolean("dark_mode", true)
     }
 
+    fun setDarkMode(enabled: Boolean) {
+        prefs.edit().putBoolean("dark_mode", enabled).apply()
+    }
+
     fun setNotificationsEnabled(enabled: Boolean) {
         prefs.edit().putBoolean("notifications_enabled", enabled).apply()
     }

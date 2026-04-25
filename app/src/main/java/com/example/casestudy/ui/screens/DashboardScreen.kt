@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -34,8 +36,8 @@ fun DashboardScreen(
     announcementViewModel: AnnouncementViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val sessionManager = SessionManager(context)
-    val username = sessionManager.getUsername() ?: "User"
+    val sessionManager = remember { SessionManager(context) }
+    val username = remember(sessionManager) { sessionManager.getUsername() ?: "User" }
 
     val tasks by taskViewModel.allTasks.collectAsState()
     val isTasksLoading by taskViewModel.isLoading.collectAsState()
@@ -154,7 +156,7 @@ fun DashboardScreen(
                 val menuItems = listOf(
                     Triple("Dashboard", Icons.Default.Home, "dashboard"),
                     Triple("Campus Info", Icons.Default.School, "campus"),
-                    Triple("My Tasks", Icons.Default.Event, "tasks"),
+                    Triple("My Tasks", Icons.AutoMirrored.Filled.Assignment, "tasks"),
                     Triple("Announcements", Icons.Default.Campaign, "announcements"),
                     Triple("Settings", Icons.Default.Settings, "settings")
                 )
@@ -181,10 +183,12 @@ fun DashboardScreen(
                 NavigationDrawerItem(
                     label = { Text("Logout", color = Color.Red, fontWeight = FontWeight.Bold) },
                     selected = false,
-                    icon = { Icon(Icons.Default.Logout, null, tint = Color.Red) },
+                    icon = { Icon(Icons.AutoMirrored.Filled.Logout, null, tint = Color.Red) },
                     onClick = {
                         sessionManager.logout()
-                        navController.navigate("login")
+                        navController.navigate("user_selection") {
+                            popUpTo(0) { inclusive = true }
+                        }
                     },
                     modifier = Modifier.padding(12.dp),
                     shape = RoundedCornerShape(16.dp)
@@ -356,7 +360,7 @@ fun DashboardScreen(
                     )
                     MenuIconBox(
                         label = "Tasks", 
-                        icon = Icons.Default.Assignment, 
+                        icon = Icons.AutoMirrored.Filled.Assignment,
                         color = MintGreen,
                         textColor = textColor,
                         isDarkMode = isDarkMode,
