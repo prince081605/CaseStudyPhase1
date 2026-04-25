@@ -1,5 +1,8 @@
 package com.example.casestudy.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,15 +15,20 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.casestudy.data.Task
+import com.example.casestudy.ui.theme.ErrorRed
 import com.example.casestudy.ui.viewmodel.MainViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,81 +40,106 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
     var showAddDialog by remember { mutableStateOf(false) }
     var taskToEdit by remember { mutableStateOf<Task?>(null) }
 
-    // Dynamic colors
-    val backgroundColor = MaterialTheme.colorScheme.background
     val textColor = MaterialTheme.colorScheme.onBackground
     val primaryColor = MaterialTheme.colorScheme.primary
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Academic Tasks", color = textColor) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
-        },
-        containerColor = backgroundColor,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { 
-                    taskToEdit = null
-                    showAddDialog = true 
-                },
-                containerColor = primaryColor,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Task")
-            }
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            if (tasks.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No tasks yet. Tap + to add one!", color = textColor.copy(alpha = 0.6f))
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+    AppBackground {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Academic Tasks", color = textColor) },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                )
+            },
+            containerColor = Color.Transparent,
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { 
+                        taskToEdit = null
+                        showAddDialog = true 
+                    },
+                    containerColor = primaryColor,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    items(tasks) { task ->
-                        TaskItem(
-                            task = task,
-                            onToggle = { viewModel.updateTask(task.copy(isCompleted = !task.isCompleted)) },
-                            onDelete = { viewModel.deleteTask(task) },
-                            onEdit = {
-                                taskToEdit = task
-                                showAddDialog = true
-                            }
+                    Icon(Icons.Default.Add, contentDescription = "Add Task")
+                }
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                if (tasks.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Assignment,
+                            contentDescription = null,
+                            modifier = Modifier.size(80.dp),
+                            tint = primaryColor.copy(alpha = 0.3f)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "No Tasks Yet",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = textColor,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Stay organized! Tap the + button to add your assignments, exams, or projects.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = textColor.copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center
                         )
                     }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(tasks) { task ->
+                            TaskItem(
+                                task = task,
+                                onToggle = { viewModel.updateTask(task.copy(isCompleted = !task.isCompleted)) },
+                                onDelete = { viewModel.deleteTask(task) },
+                                onEdit = {
+                                    taskToEdit = task
+                                    showAddDialog = true
+                                }
+                            )
+                        }
+                    }
                 }
             }
-        }
 
-        if (showAddDialog) {
-            TaskDialog(
-                task = taskToEdit,
-                onDismiss = { showAddDialog = false },
-                onSave = { title, dateTime ->
-                    if (taskToEdit == null) {
-                        viewModel.addTask(Task(title = title, description = "", dueDate = dateTime))
-                    } else {
-                        viewModel.updateTask(taskToEdit!!.copy(title = title, dueDate = dateTime))
+            if (showAddDialog) {
+                TaskDialog(
+                    task = taskToEdit,
+                    onDismiss = { showAddDialog = false },
+                    onSave = { title, dateTime ->
+                        if (taskToEdit == null) {
+                            viewModel.addTask(Task(title = title, description = "", dueDate = dateTime))
+                        } else {
+                            viewModel.updateTask(taskToEdit!!.copy(title = title, dueDate = dateTime))
+                        }
+                        showAddDialog = false
                     }
-                    showAddDialog = false
-                }
-            )
+                )
+            }
         }
     }
 }
@@ -164,6 +197,7 @@ fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: () 
 @Composable
 fun TaskDialog(task: Task? = null, onDismiss: () -> Unit, onSave: (String, String) -> Unit) {
     var title by remember { mutableStateOf(task?.title ?: "") }
+    var error by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     
@@ -200,14 +234,38 @@ fun TaskDialog(task: Task? = null, onDismiss: () -> Unit, onSave: (String, Strin
         onDismissRequest = onDismiss,
         title = { Text(if (task == null) "New Academic Task" else "Edit Task") },
         text = {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
+                    onValueChange = { 
+                        title = it 
+                        if (error.isNotEmpty()) error = ""
+                    },
                     label = { Text("Task Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = error.isNotEmpty(),
+                    shape = RoundedCornerShape(12.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                
+                AnimatedVisibility(
+                    visible = error.isNotEmpty(),
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(ErrorRed.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(error, color = ErrorRed, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Event, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
@@ -230,7 +288,13 @@ fun TaskDialog(task: Task? = null, onDismiss: () -> Unit, onSave: (String, Strin
         },
         confirmButton = {
             Button(
-                onClick = { if (title.isNotBlank()) onSave(title, "$selectedDate $selectedTime") },
+                onClick = { 
+                    if (title.isNotBlank()) {
+                        onSave(title, "$selectedDate $selectedTime")
+                    } else {
+                        error = "Task title cannot be empty"
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(if (task == null) "Add" else "Update")

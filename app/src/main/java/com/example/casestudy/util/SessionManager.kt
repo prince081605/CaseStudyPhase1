@@ -14,6 +14,14 @@ class SessionManager(context: Context) {
         return prefs.getString("username", null)
     }
 
+    fun savePassword(password: String) {
+        prefs.edit().putString("password", password).apply()
+    }
+
+    fun getPassword(): String {
+        return prefs.getString("password", "1234") ?: "1234"
+    }
+
     fun isDarkMode(): Boolean {
         return prefs.getBoolean("is_dark_mode", true)
     }

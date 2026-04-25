@@ -27,7 +27,9 @@ class MainActivity : ComponentActivity() {
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "app-database"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
 
         val sessionManager = SessionManager(applicationContext)
 
