@@ -1,11 +1,5 @@
 # 📱 Mobile Development Case Study App
 
-![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue?logo=kotlin)
-![Compose](https://img.shields.io/badge/Jetpack%20Compose-2024.02.00-green)
-![Room](https://img.shields.io/badge/Room-2.6.1-orange)
-![Android](https://img.shields.io/badge/API-35-brightgreen)
-![License](https://img.shields.io/badge/Case%20Study-Student%20Project-purple)
-
 A **modern student academic companion app** built using **Kotlin + Jetpack Compose**, designed for task management, campus information, and announcements.
 Now upgraded with **Room Database**, enabling persistent storage and real-time data updates.
 
