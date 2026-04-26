@@ -153,6 +153,25 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                             Icon(Icons.Default.Menu, null, tint = white)
                         }
                     },
+                    actions = {
+                        IconButton(onClick = { navController.navigate("announcements") }) {
+                            BadgedBox(
+                                badge = {
+                                    if (unreadAnnouncements > 0) {
+                                        Badge(containerColor = red, contentColor = white) {
+                                            Text(unreadAnnouncements.toString())
+                                        }
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Notifications,
+                                    contentDescription = "Announcements",
+                                    tint = white
+                                )
+                            }
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
                 )
             }
