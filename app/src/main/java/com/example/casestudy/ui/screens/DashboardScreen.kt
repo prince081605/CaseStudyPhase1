@@ -185,17 +185,41 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                     .padding(16.dp)
             ) {
 
-                Text(
-                    text = todayDate,
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = todayDate,
+                            color = Color.Gray,
+                            style = MaterialTheme.typography.labelLarge
+                        )
 
-                Text(
-                    text = "$greeting, $username",
-                    color = cyan,
-                    style = MaterialTheme.typography.headlineSmall
-                )
+                        Text(
+                            text = "$greeting, $username",
+                            color = cyan,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+
+                    // Personal Initials Avatar
+                    Surface(
+                        modifier = Modifier.size(45.dp),
+                        shape = RoundedCornerShape(23.dp),
+                        color = cyan.copy(alpha = 0.2f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, cyan)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = username.take(1).uppercase(),
+                                color = cyan,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
+                }
 
                 Spacer(Modifier.height(16.dp))
 
