@@ -1,5 +1,8 @@
 package com.example.casestudy.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.casestudy.ui.theme.*
 import com.example.casestudy.util.SessionManager
@@ -33,6 +37,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
     var notificationsEnabled by remember { mutableStateOf(sessionManager.isNotificationsEnabled()) }
+    var showChangePasswordDialog by remember { mutableStateOf(false) }
 
     // Cartoonish Theme Colors
     val bgColor = if (isDarkMode) Color(0xFF121212) else PastelYellow
@@ -40,6 +45,16 @@ fun SettingsScreen(
     val textColor = if (isDarkMode) Color.White else DarkText
     val accentColor = PastelPink
     val borderColor = if (isDarkMode) Color(0xFF333333) else DarkText.copy(alpha = 0.1f)
+
+    if (showChangePasswordDialog) {
+        ChangePasswordDialog(
+            onDismiss = { showChangePasswordDialog = false },
+            onConfirm = { newPassword ->
+                // In a real app, you'd call a ViewModel to update the password
+                showChangePasswordDialog = false
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -138,7 +153,7 @@ fun SettingsScreen(
                 Column {
                     Text("User: ${sessionManager.getUsername() ?: "User"}", color = textColor)
                     Spacer(Modifier.height(8.dp))
-                    TextButton(onClick = { }, contentPadding = PaddingValues(0.dp)) {
+                    TextButton(onClick = { showChangePasswordDialog = true }, contentPadding = PaddingValues(0.dp)) {
                         Text("Change Password", color = BubblegumPink, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -173,7 +188,7 @@ fun SettingsScreen(
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.7f))
             ) {
-                Icon(Icons.Default.Logout, null, tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.Logout, null, tint = Color.White)
                 Spacer(Modifier.width(8.dp))
                 Text("Logout", color = Color.White, fontWeight = FontWeight.Bold)
             }
@@ -181,7 +196,6 @@ fun SettingsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangePasswordDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
     var newPassword by remember { mutableStateOf("") }
@@ -226,13 +240,13 @@ fun ChangePasswordDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(ErrorRed.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(8.dp))
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = ErrorRed, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(error, color = ErrorRed, style = MaterialTheme.typography.bodySmall)
+                        Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }

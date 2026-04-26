@@ -14,29 +14,43 @@ import com.example.casestudy.ui.viewmodel.MainViewModel
 @Composable
 fun AppNavHost(
     viewModel: MainViewModel,
-    startDestination: String = "selection"
+    startDestination: String = "splash"
 ) {
     val navController = rememberNavController()
     val isDarkMode by viewModel.isDarkMode.collectAsState()
 
     NavHost(navController = navController, startDestination = startDestination) {
-        composable("login") {
-            LoginScreen(navController, isDarkMode)
+        composable("splash") {
+            SplashScreen(navController, isDarkMode)
+        }
+        composable("user_selection") {
+            UserSelectionScreen(navController, isDarkMode)
+        }
+        composable(
+            route = "login/{userType}",
+            arguments = listOf(navArgument("userType") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val userType = backStackEntry.arguments?.getString("userType") ?: "student"
+            LoginScreen(navController, isDarkMode, userType)
         }
         composable("dashboard") {
-            DashboardScreen(navController, viewModel)
+            DashboardScreen(navController, isDarkMode)
         }
         composable("campus") {
             CampusInfoScreen(navController)
         }
         composable("tasks") {
-            TasksScreen(navController, viewModel)
+            TasksScreen(navController)
         }
         composable("announcements") {
-            AnnouncementsScreen(navController, viewModel)
+            AnnouncementsScreen(navController)
         }
         composable("settings") {
-            SettingsScreen(navController, viewModel)
+            SettingsScreen(
+                navController = navController,
+                isDarkMode = isDarkMode,
+                onThemeChange = { viewModel.toggleDarkMode(it) }
+            )
         }
     }
 }

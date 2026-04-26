@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class Task(
     @PrimaryKey val id: String = "", // Changed to String for Firestore ID
     val title: String = "",
+    val description: String = "",
     val date: String = "",
     val isCompleted: Boolean = false
 )

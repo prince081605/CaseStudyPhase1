@@ -32,10 +32,10 @@ class TaskViewModel : ViewModel() {
         }
     }
 
-    fun addTask(title: String, date: String) {
+    fun addTask(title: String, description: String, date: String) {
         viewModelScope.launch {
             val docRef = tasksCollection.document()
-            val task = Task(id = docRef.id, title = title, date = date)
+            val task = Task(id = docRef.id, title = title, description = description, date = date)
             docRef.set(task).await()
         }
     }

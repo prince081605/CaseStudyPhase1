@@ -1,19 +1,11 @@
 package com.example.casestudy.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,28 +14,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -79,6 +51,7 @@ fun AnnouncementsScreen(
     val isLoading by viewModel.isLoading.collectAsState()
 
     var showAddDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Cartoonish Theme Colors
     val bgColor = if (isDarkMode) Color(0xFF121212) else PastelYellow
@@ -129,7 +102,11 @@ fun AnnouncementsScreen(
         ) {
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = accentColor)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = accentColor, strokeWidth = 6.dp)
+                        Spacer(Modifier.height(16.dp))
+                        Text("Fetching news...", color = textColor.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)
+                    }
                 }
             } else if (announcements.isEmpty()) {
                 Column(
@@ -140,11 +117,12 @@ fun AnnouncementsScreen(
                     Icon(
                         imageVector = Icons.Default.Campaign,
                         contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = Color.Gray
+                        modifier = Modifier.size(80.dp),
+                        tint = Color.Gray.copy(alpha = 0.4f)
                     )
-                    Spacer(Modifier.height(8.dp))
-                    Text("No announcements yet", color = Color.Gray, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(16.dp))
+                    Text("No announcements yet", color = Color.Gray, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text("Stay tuned for updates!", color = Color.Gray.copy(alpha = 0.6f))
                 }
             } else {
                 LazyColumn(
@@ -163,24 +141,32 @@ fun AnnouncementsScreen(
                             accentColor = secondaryAccent
                         )
                     }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                }
+            }
+
+            // Global Error Message Overlay
+            AnimatedVisibility(
+                visible = errorMessage != null,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 100.dp)
+            ) {
+                errorMessage?.let { msg ->
+                    Surface(
+                        color = Color.Red.copy(alpha = 0.9f),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.padding(16.dp)
                     ) {
-                        items(announcements) { announcement ->
-                            AnnouncementItem(
-                                announcement = announcement,
-                                onMarkAsRead = {
-                                    viewModel.updateAnnouncement(announcement.copy(isRead = true))
-                                },
-                                onMarkAsUnread = {
-                                    viewModel.updateAnnouncement(announcement.copy(isRead = false))
-                                }
-                            )
-                        }
+                        Text(
+                            text = msg,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    LaunchedEffect(msg) {
+                        kotlinx.coroutines.delay(3000)
+                        errorMessage = null
                     }
                 }
             }
@@ -190,9 +176,13 @@ fun AnnouncementsScreen(
             CartoonAddAnnouncementDialog(
                 onDismiss = { showAddDialog = false },
                 onAdd = { title, content ->
-                    val date = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
-                    viewModel.addAnnouncement(title, content, date)
-                    showAddDialog = false
+                    if (title.isBlank() || content.isBlank()) {
+                        errorMessage = "Please fill in all fields!"
+                    } else {
+                        val date = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
+                        viewModel.addAnnouncement(title, content, date)
+                        showAddDialog = false
+                    }
                 },
                 isDarkMode = isDarkMode
             )
@@ -212,44 +202,47 @@ fun CartoonAnnouncementItem(
         modifier = Modifier
             .fillMaxWidth()
             .border(
-                width = 2.dp,
+                width = 3.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(28.dp)
             ),
-        shape = RoundedCornerShape(24.dp),
-        color = cardBg
+        shape = RoundedCornerShape(28.dp),
+        color = cardBg,
+        shadowElevation = 0.dp
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(24.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(accentColor, RoundedCornerShape(12.dp)),
-                    contentAlignment = Alignment.Center
+                Surface(
+                    modifier = Modifier.size(48.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    color = accentColor
                 ) {
-                    Icon(Icons.Default.NotificationsActive, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.NotificationsActive, null, tint = Color.White, modifier = Modifier.size(24.dp))
+                    }
                 }
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Column {
                     Text(
                         text = announcement.title,
                         fontWeight = FontWeight.Black,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         color = textColor
                     )
                     Text(
                         text = announcement.date,
                         fontSize = 12.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = announcement.content,
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 color = textColor.copy(alpha = 0.8f),
-                lineHeight = 20.sp
+                lineHeight = 22.sp
             )
         }
     }
@@ -264,6 +257,7 @@ fun CartoonAddAnnouncementDialog(
 ) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf(false) }
 
     val accentColor = BubblegumPink
     val cardBg = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
@@ -277,42 +271,60 @@ fun CartoonAddAnnouncementDialog(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Title") },
+                    onValueChange = { 
+                        title = it
+                        showError = false
+                    },
+                    label = { Text("Title", fontWeight = FontWeight.Bold) },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = accentColor,
-                        unfocusedBorderColor = Color.Gray
+                        unfocusedBorderColor = Color.Gray.copy(alpha = 0.5f)
                     )
                 )
                 OutlinedTextField(
                     value = content,
-                    onValueChange = { content = it },
-                    label = { Text("What's happening?") },
+                    onValueChange = { 
+                        content = it
+                        showError = false
+                    },
+                    label = { Text("What's happening?", fontWeight = FontWeight.Bold) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = accentColor,
-                        unfocusedBorderColor = Color.Gray
+                        unfocusedBorderColor = Color.Gray.copy(alpha = 0.5f)
                     )
                 )
+                if (showError) {
+                    Text("Both fields are required!", color = Color.Red, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
             }
         },
         confirmButton = {
             Button(
-                onClick = { if (title.isNotBlank() && content.isNotBlank()) onAdd(title, content) },
+                onClick = { 
+                    if (title.isNotBlank() && content.isNotBlank()) {
+                        onAdd(title, content)
+                    } else {
+                        showError = true
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = accentColor),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.height(50.dp).padding(horizontal = 8.dp)
             ) {
-                Text("Post", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("Post It! \uD83D\uDCE2", color = Color.White, fontWeight = FontWeight.Black)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.Gray)
+                Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Bold)
             }
-        }
+        },
+        shape = RoundedCornerShape(32.dp),
+        modifier = Modifier.border(4.dp, accentColor.copy(alpha = 0.2f), RoundedCornerShape(32.dp))
     )
 }

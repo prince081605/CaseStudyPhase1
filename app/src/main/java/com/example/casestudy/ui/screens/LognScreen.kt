@@ -3,10 +3,12 @@ package com.example.casestudy.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -21,25 +23,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.casestudy.R
 import com.example.casestudy.ui.theme.*
 import com.example.casestudy.util.SessionManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
+fun LoginScreen(navController: NavController, isDarkMode: Boolean, selectedUserType: String = "student") {
     val context = LocalContext.current
     val sessionManager = com.example.casestudy.util.SessionManager(context)
+    val scope = rememberCoroutineScope()
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     // Cartoonish Theme Colors
     val bgColor = if (isDarkMode) Color(0xFF121212) else PastelYellow
@@ -54,7 +62,7 @@ fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
             .background(bgColor),
         contentAlignment = Alignment.Center
     ) {
-        // Playful background decoration (visible even in dark mode but more subtle)
+        // Playful background decoration
         Box(
             modifier = Modifier
                 .size(150.dp)
@@ -70,6 +78,18 @@ fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
                 .background(if (isDarkMode) PastelBlue.copy(alpha = 0.3f) else PastelBlue, CircleShape)
         )
 
+        // Back Button
+        IconButton(
+            onClick = { if (!isLoading) navController.popBackStack() },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+                .background(cardBg, CircleShape)
+                .border(2.dp, borderColor, CircleShape)
+        ) {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = textColor)
+        }
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -82,15 +102,32 @@ fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(32.dp),
+                    .padding(horizontal = 32.dp, vertical = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // APP LOGO
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .background(Color.White, CircleShape)
+                        .border(2.dp, accentColor.copy(alpha = 0.2f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "App Logo",
+                        modifier = Modifier.size(50.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
-                    text = "Welcome! \uD83D\uDC4B",
+                    text = "${selectedUserType.replaceFirstChar { it.uppercase() }} Login",
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Black,
                     color = textColor,
-                    fontSize = 32.sp
+                    fontSize = 28.sp
                 )
                 
                 Text(
@@ -100,15 +137,20 @@ fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
                     color = textColor.copy(alpha = 0.6f)
                 )
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = username,
-                    onValueChange = { username = it },
+                    onValueChange = { 
+                        username = it
+                        error = "" 
+                    },
                     label = { Text("Username", fontWeight = FontWeight.Bold) },
                     singleLine = true,
+                    enabled = !isLoading,
                     shape = RoundedCornerShape(16.dp),
+                    isError = error.contains("username", ignoreCase = true) || error.contains("account", ignoreCase = true),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = accentColor,
                         unfocusedBorderColor = borderColor,
@@ -124,10 +166,15 @@ fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { 
+                        password = it
+                        error = ""
+                    },
                     label = { Text("Password", fontWeight = FontWeight.Bold) },
                     singleLine = true,
+                    enabled = !isLoading,
                     shape = RoundedCornerShape(16.dp),
+                    isError = error.contains("password", ignoreCase = true),
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -150,28 +197,52 @@ fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
 
                 if (error.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = error,
-                        color = Color.Red,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Surface(
+                        color = Color.Red.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.ErrorOutline, null, tint = Color.Red, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = error,
+                                color = Color.Red,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
                     onClick = {
-                        if ((username == "admin" && password == "1234") || 
-                            (username == "student" && password == "1234")) {
-                            sessionManager.saveLogin(username)
-                            navController.navigate("dashboard") {
-                                popUpTo("login") { inclusive = true }
-                            }
+                        if (username.isBlank() || password.isBlank()) {
+                            error = "Please enter both username and password"
                         } else {
-                            error = "Oops! Try admin/1234 or student/1234"
+                            isLoading = true
+                            error = ""
+                            scope.launch {
+                                delay(1500)
+                                isLoading = false
+                                if (username.lowercase() != selectedUserType.lowercase()) {
+                                    error = "Invalid username for $selectedUserType account"
+                                } else if (password == "1234") {
+                                    sessionManager.saveLogin(username)
+                                    navController.navigate("dashboard") {
+                                        popUpTo("user_selection") { inclusive = true }
+                                    }
+                                } else {
+                                    error = "Incorrect password. Please try again."
+                                }
+                            }
                         }
                     },
+                    enabled = !isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
@@ -182,11 +253,19 @@ fun LoginScreen(navController: NavController, isDarkMode: Boolean) {
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                 ) {
-                    Text(
-                        text = "Let's Go!",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 3.dp
+                        )
+                    } else {
+                        Text(
+                            text = "Let's Go!",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
