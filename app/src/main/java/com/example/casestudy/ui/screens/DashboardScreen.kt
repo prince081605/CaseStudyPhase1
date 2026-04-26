@@ -1,5 +1,9 @@
 package com.example.casestudy.ui.screens
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +28,7 @@ import androidx.navigation.NavController
 import com.example.casestudy.ui.theme.*
 import com.example.casestudy.ui.viewmodel.AnnouncementViewModel
 import com.example.casestudy.ui.viewmodel.TaskViewModel
+import com.example.casestudy.util.NotificationHelper
 import com.example.casestudy.util.SessionManager
 import kotlinx.coroutines.launch
 
@@ -37,6 +42,7 @@ fun DashboardScreen(
 ) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager(context) }
+    val notificationHelper = remember { NotificationHelper(context) }
     val username = remember(sessionManager) { sessionManager.getUsername() ?: "User" }
 
     val tasks by taskViewModel.allTasks.collectAsState()
@@ -53,9 +59,16 @@ fun DashboardScreen(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val drawerWidth = screenWidth * 0.7f
 
-    // Notification Logic
-    var showNotificationDialog by remember { mutableStateOf(false) }
-    var notificationMessage by remember { mutableStateOf("") }
+    // Permission Launcher for Notifications (Android 13+)
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { _ -> }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     LaunchedEffect(announcements) {
         if (announcements.isNotEmpty()) {
@@ -64,8 +77,12 @@ fun DashboardScreen(
             
             // If the latest announcement is different from the last one seen, and notifications are enabled
             if (latestId != lastSeenId && sessionManager.isNotificationsEnabled() && username != "admin") {
-                notificationMessage = announcements.first().title
-                showNotificationDialog = true
+                val latest = announcements.first()
+                // Show System Notification
+                notificationHelper.showNotification(
+                    title = "New Announcement: ${latest.title}",
+                    message = latest.content
+                )
                 sessionManager.saveLastSeenAnnouncementId(latestId)
             }
         }
@@ -81,45 +98,6 @@ fun DashboardScreen(
     
     val pendingCardBg = if (isDarkMode) MintGreen.copy(alpha = 0.2f) else MintGreen
     val newsCardBg = if (isDarkMode) SoftLavender.copy(alpha = 0.2f) else SoftLavender
-
-    if (showNotificationDialog) {
-        AlertDialog(
-            onDismissRequest = { showNotificationDialog = false },
-            title = { 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Campaign, null, tint = accentColor, modifier = Modifier.size(32.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("New Announcement!", fontWeight = FontWeight.Black, color = textColor)
-                }
-            },
-            text = { 
-                Text(
-                    "Admin posted a new update: \"$notificationMessage\"",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = textColor
-                ) 
-            },
-            containerColor = cardBg,
-            confirmButton = {
-                Button(
-                    onClick = { 
-                        showNotificationDialog = false
-                        navController.navigate("announcements")
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = accentColor),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("View Now", color = DarkText, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showNotificationDialog = false }) {
-                    Text("Later", color = Color.Gray)
-                }
-            },
-            modifier = Modifier.border(2.dp, accentColor, RoundedCornerShape(28.dp))
-        )
-    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
