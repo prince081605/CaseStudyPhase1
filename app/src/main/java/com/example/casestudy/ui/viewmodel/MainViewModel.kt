@@ -1,4 +1,3 @@
-
 package com.example.casestudy.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -33,6 +32,12 @@ class MainViewModel(private val dao: AppDao) : ViewModel() {
     fun deleteTask(task: Task) {
         viewModelScope.launch {
             dao.deleteTask(task)
+        }
+    }
+
+    fun clearCompletedTasks() {
+        viewModelScope.launch {
+            dao.deleteCompletedTasks()
         }
     }
 

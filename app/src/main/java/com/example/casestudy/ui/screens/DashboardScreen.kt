@@ -17,6 +17,8 @@ import androidx.navigation.NavController
 import com.example.casestudy.ui.viewmodel.MainViewModel
 import com.example.casestudy.util.SessionManager
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +30,12 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
 
     val tasks by viewModel.tasks.collectAsState()
     val announcements by viewModel.announcements.collectAsState()
-    val pendingTasks = tasks.count { !it.isCompleted }
+
+    val totalTasks = tasks.size
+    val completedTasks = tasks.count { it.isCompleted }
+    val pendingTasks = totalTasks - completedTasks
+    val progress = if (totalTasks > 0) completedTasks.toFloat() / totalTasks else 0f
+
     val latestAnnouncement = announcements.firstOrNull()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -42,6 +49,16 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
     val cyan = Color(0xFF00BCD4)
     val white = Color.White
     val red = Color(0xFFE53935)
+
+    // Dynamic Greeting Logic
+    val calendar = Calendar.getInstance()
+    val hour = calendar.get(Calendar.HOUR_OF_DAY)
+    val greeting = when (hour) {
+        in 0..11 -> "Good Morning"
+        in 12..16 -> "Good Afternoon"
+        else -> "Good Evening"
+    }
+    val todayDate = SimpleDateFormat("EEEE, MMMM dd", Locale.getDefault()).format(Date())
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -135,7 +152,13 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
             ) {
 
                 Text(
-                    text = "Welcome, $username",
+                    text = todayDate,
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.labelLarge
+                )
+
+                Text(
+                    text = "$greeting, $username",
                     color = cyan,
                     style = MaterialTheme.typography.headlineSmall
                 )
@@ -145,7 +168,15 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = darkCard)
+                    colors = CardDefaults.cardColors(containerColor = darkCard),
+                    onClick = {
+                        latestAnnouncement?.let {
+                            if (!it.isRead) {
+                                viewModel.updateAnnouncement(it.copy(isRead = true))
+                            }
+                            navController.navigate("announcements")
+                        }
+                    }
                 ) {
                     Column(Modifier.padding(16.dp)) {
 
@@ -195,7 +226,8 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                         Text(
                             text = latestAnnouncement?.content ?: "Check back later for updates.",
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 2
                         )
                     }
                 }
@@ -218,6 +250,22 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                             Spacer(Modifier.height(8.dp))
                             Text("Tasks", color = cyan)
                             Text("$pendingTasks Pending", color = Color.White)
+
+                            if (totalTasks > 0) {
+                                Spacer(Modifier.height(8.dp))
+                                LinearProgressIndicator(
+                                    progress = { progress },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = cyan,
+                                    trackColor = Color.DarkGray
+                                )
+                                Text(
+                                    "${(progress * 100).toInt()}% Done",
+                                    color = Color.Gray,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    modifier = Modifier.align(Alignment.End)
+                                )
+                            }
                         }
                     }
 

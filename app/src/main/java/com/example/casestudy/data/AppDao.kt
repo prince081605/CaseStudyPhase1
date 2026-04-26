@@ -26,6 +26,9 @@ interface AppDao {
     @Delete
     suspend fun deleteTask(task: Task)
 
+    @Query("DELETE FROM tasks WHERE isCompleted = 1")
+    suspend fun deleteCompletedTasks()
+
     // Announcements
     @Query("SELECT * FROM announcements ORDER BY id DESC")
     fun getAllAnnouncements(): Flow<List<Announcement>>
