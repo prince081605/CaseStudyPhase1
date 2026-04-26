@@ -11,11 +11,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -28,8 +27,16 @@ import com.example.casestudy.ui.viewmodel.MainViewModel
 @Composable
 fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) {
     val announcements by viewModel.announcements.collectAsState()
+    var showUnreadOnly by remember { mutableStateOf(false) }
+
+    val filteredAnnouncements = if (showUnreadOnly) {
+        announcements.filter { !it.isRead }
+    } else {
+        announcements
+    }
 
     val blackBg = Color(0xFF0F0F0F)
+    val cyan = Color(0xFF00BCD4)
     val white = Color.White
 
     Scaffold(
@@ -39,6 +46,27 @@ fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) 
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = white)
+                    }
+                },
+                actions = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text(
+                            "Unread",
+                            color = if (showUnreadOnly) cyan else Color.Gray,
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Switch(
+                            checked = showUnreadOnly,
+                            onCheckedChange = { showUnreadOnly = it },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = cyan,
+                                checkedTrackColor = cyan.copy(alpha = 0.5f)
+                            ),
+                            modifier = Modifier.scale(0.7f)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = blackBg)
@@ -56,22 +84,31 @@ fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) 
                     )
                 )
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(announcements) { announcement ->
-                    AnnouncementItem(
-                        announcement = announcement,
-                        onMarkAsRead = {
-                            viewModel.updateAnnouncement(announcement.copy(isRead = true))
-                        },
-                        onMarkAsUnread = {
-                            viewModel.updateAnnouncement(announcement.copy(isRead = false))
-                        }
+            if (filteredAnnouncements.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        if (showUnreadOnly) "All announcements caught up!" else "No announcements found.",
+                        color = Color.Gray
                     )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filteredAnnouncements) { announcement ->
+                        AnnouncementItem(
+                            announcement = announcement,
+                            onMarkAsRead = {
+                                viewModel.updateAnnouncement(announcement.copy(isRead = true))
+                            },
+                            onMarkAsUnread = {
+                                viewModel.updateAnnouncement(announcement.copy(isRead = false))
+                            }
+                        )
+                    }
                 }
             }
         }

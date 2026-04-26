@@ -25,13 +25,19 @@ import java.util.*
 @Composable
 fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
     val tasks by viewModel.tasks.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
     var showAddDialog by remember { mutableStateOf(false) }
     var taskToEdit by remember { mutableStateOf<Task?>(null) }
     var showMenu by remember { mutableStateOf(false) }
 
     val blackBg = Color(0xFF0F0F0F)
+    val darkCard = Color(0xFF1A1A1A)
     val cyan = Color(0xFF00BCD4)
     val white = Color.White
+
+    val filteredTasks = tasks.filter {
+        it.title.contains(searchQuery, ignoreCase = true)
+    }
 
     Scaffold(
         topBar = {
@@ -79,7 +85,7 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
             }
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -89,18 +95,58 @@ fun TasksScreen(navController: NavController, viewModel: MainViewModel) {
                     )
                 )
         ) {
-            if (tasks.isEmpty()) {
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search tasks...", color = Color.Gray) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = cyan) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = cyan,
+                    unfocusedBorderColor = Color.DarkGray,
+                    focusedTextColor = white,
+                    unfocusedTextColor = white,
+                    cursorColor = cyan
+                )
+            )
+
+            if (filteredTasks.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No tasks yet. Tap + to add one!", color = Color.Gray)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = if (searchQuery.isEmpty()) Icons.Default.Task else Icons.Default.SearchOff,
+                            contentDescription = null,
+                            tint = Color.DarkGray,
+                            modifier = Modifier.size(64.dp)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            text = if (searchQuery.isEmpty()) "No tasks yet. Tap + to add one!" else "No matching tasks found.",
+                            color = Color.Gray
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
-                    items(tasks) { task ->
+                    items(filteredTasks) { task ->
                         TaskItem(
                             task = task,
                             onToggle = { viewModel.updateTask(task.copy(isCompleted = !task.isCompleted)) },
@@ -139,7 +185,9 @@ fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: () 
     val white = Color.White
 
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { onEdit() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onEdit() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = darkCard),
         elevation = CardDefaults.cardElevation(4.dp)
@@ -160,7 +208,8 @@ fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: () 
                 Text(
                     text = task.title,
                     color = white,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    textDecoration = if (task.isCompleted) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
                 )
                 Text(
                     text = "Due: ${task.dueDate}",
