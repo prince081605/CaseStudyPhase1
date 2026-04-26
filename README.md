@@ -1,160 +1,150 @@
-## 📱 Mobile Development Case Study App
+# 📱 Mobile Development Case Study App
 
-A student academic companion app developed using Kotlin and Jetpack Compose.
-The application provides features for task management, campus information, announcements, and account settings, designed with Material Design 3 and a modern dark theme UI.
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue?logo=kotlin)
+![Compose](https://img.shields.io/badge/Jetpack%20Compose-2024.02.00-green)
+![Room](https://img.shields.io/badge/Room-2.6.1-orange)
+![Android](https://img.shields.io/badge/API-35-brightgreen)
+![License](https://img.shields.io/badge/Case%20Study-Student%20Project-purple)
+
+A **modern student academic companion app** built using **Kotlin + Jetpack Compose**, designed for task management, campus information, and announcements.
+Now upgraded with **Room Database**, enabling persistent storage and real-time data updates.
+
+---
+
+## ✨ Key Highlights
+
+* 📌 Modern **Jetpack Compose UI**
+* 🗄️ **Room Database (SQLite ORM)**
+* ⚡ Real-time updates using **Kotlin Flow**
+* 🔐 Session-based authentication
+* 🌙 Dark-themed Material 3 design
+* 📱 Fully offline-capable core features
+
+---
 
 ## 📱 Features
-1️⃣ Authentication System
 
-- Login screen with username/password validation
-- Hardcoded demo credentials:
-    - Username: admin
-    - Password: 1234
-- Password visibility toggle
-- Session persistence using SharedPreferences
-- Error handling for invalid credentials
+### 🔐 Authentication System
 
-2️⃣ Dashboard
-- Personalized welcome message
-- Navigation Drawer for accessing all screens
-- Recent announcement preview with "NEW" badge
-- Quick stats cards displaying:
-    - Pending tasks count
-    - Today's classes
-- Campus information shortcut
-- Logout functionality
+* Login with validation (admin / 1234)
+* Password visibility toggle
+* Session persistence using `SharedPreferences`
+* Secure logout handling
 
-3️⃣ Campus Information
-**Academic Colleges**
-- Displayed using Material3 Chips
-    - College of Computing Studies
-    - College of Engineering
-    - College of Education
-    - College of Business and Accountancy
-    - College of Arts and Sciences
-    
-### Contact Information
-| Type | Details |
-|------|---------|
-| Email | info@pnc.edu.ph |
-| Phone | (049) 545-5453 |
-| Address | Barangay Banay-Banay, Cabuyao City, Laguna |
-| Office Hours | Monday – Friday, 8:00 AM – 5:00 PM |
+---
 
-4️⃣ Tasks & Schedule Manager
+### 📊 Dashboard
 
-- List of upcoming academic tasks
-- Due dates displayed on each card
-- Event icons for visual organization
-- Floating Action Button (FAB) for adding tasks
+* Personalized welcome screen
+* Navigation Drawer system
+* **Live Quick Stats (Room-powered):**
 
-**Sample Tasks**
-- Capstone Proposal — Feb 5
-- Database Quiz — Feb 8
-- Mobile Dev Activity — Feb 10
+  * Pending tasks count
+  * Activity overview
+* Reactive UI using **Flow + Compose**
 
-5️⃣ Announcements System
+---
 
-- Card-based announcement layout
-- Multiple icon types:
-    - Event
-    - Info
-    - Schedule
-- Date stamps for each announcement
+### 🏫 Campus Information
 
-**Sample Announcements**
-- Enrollment starts next week
-- No classes on Feb 6
-- Library hours extended
+* College listings via Material Chips:
 
-6️⃣ Settings Screen
+  * Computing Studies
+  * Engineering
+  * Education
+  * Business & Accountancy
+  * Arts & Sciences
+* Contact directory (email, phone, address, office hours)
 
-**Account**
-- Username display
-- Change password option
+---
 
-**Notifications**
-- Toggle push notifications
+### 📌 Task Manager (Room Database)
 
-**Appearance**
--Dark mode toggle
+* Persistent task storage
+* Full CRUD operations:
 
-**Language**
-- Default language: English
+  * Create
+  * Read
+  * Update
+  * Delete
+* Due date tracking system
+* Floating Action Button (FAB) for task entry
 
-**Privacy & Security**
-- Password management
-- Two-Factor Authentication (2FA)
-- App permissions
+---
 
-**Support & Help**
-- FAQ
-- Contact support
-- Terms & Conditions
+### 📢 Announcements System
 
-**App Info**
-- Application version information
+* Card-based UI design
+* Categories:
+
+  * Event
+  * Info
+  * Schedule
+* Offline caching support
+* Timestamped updates
+
+---
+
+### ⚙️ Settings Module
+
+* Account management
+* Dark mode support 🌙
+* Notification toggle 🔔
+* Language settings 🌐
+* Privacy & security options
+* App version info
+
+---
 
 ## 🛠️ Tech Stack
 
-| Technology           | Version   | Purpose                 |
-|---------------------|-----------|------------------------|
-| Kotlin              | 1.9+      | Primary programming language |
-| Jetpack Compose     | 2024.02.00| Modern UI toolkit       |
-| Navigation Compose  | 2.7.7     | In-app navigation       |
-| Material Design 3   | 1.2.0     | UI component library    |
-| Android SDK         | API 34+   | Platform support        |
+| Layer        | Technology              |
+| ------------ | ----------------------- |
+| Language     | Kotlin 2.0.21           |
+| UI           | Jetpack Compose 2024.02 |
+| Database     | Room 2.6.1              |
+| Architecture | MVVM (Lightweight)      |
+| Async        | Kotlin Flow             |
+| DI Tool      | KSP                     |
+| Navigation   | Navigation Compose      |
+| Design       | Material Design 3       |
+| Platform     | Android API 35          |
+| Build Tool   | Gradle (Kotlin DSL)     |
 
+---
 
 ## 📁 Project Structure
+
+```text
 com.example.casestudy/
-├── MainActivity.kt # Application entry point
+│
+├── data/
+│   ├── AppDatabase.kt
+│   ├── AppDao.kt
+│   └── Entities.kt
+│
 ├── ui/
-│ ├── navigation/ # Navigation graph
-│ │ └── AppNavHost.kt
-│ ├── screens/ # UI Screens (Composables)
-│ │ ├── LoginScreen.kt
-│ │ ├── DashboardScreen.kt
-│ │ ├── CampusInfoScreen.kt
-│ │ ├── TasksScreen.kt
-│ │ ├── AnnouncementsScreen.kt
-│ │ └── SettingsScreen.kt
-│ └── theme/ # App Theme
-│ ├── Color.kt
-│ ├── Theme.kt
-│ └── Type.kt
+│   ├── navigation/
+│   │   └── AppNavHost.kt
+│   ├── screens/
+│   └── theme/
+│
 └── util/
-└── SessionManager.kt # Session Management
+    └── SessionManager.kt
+```
 
+---
 
-## 🎨 UI / UX Design
+## 🔧 Core Implementation
 
-### Color Palette
+### 🧭 Navigation
 
-| Color           | Hex Code  | Usage                     |
-|-----------------|-----------|---------------------------|
-| Cyan            | #00BCD4   | Primary accent, buttons, icons |
-| Dark Background | #0F0F0F   | Main background          |
-| Dark Card       | #1A1A1A   | Card backgrounds         |
-| White           | #FFFFFF   | Primary text             |
-| Gray            | #AAAAAA   | Secondary text           |
-
-
-**Design Features**
-- Dark Theme with cyan accents
-- Rounded cards (20–24dp)
-- Decorative cyan circles
-- Consistent Material Design 3 components
-- Gradient screen backgrounds
-
-
-🔧 Key Implementation Details
-**Navigation System**
+```kotlin
 @Composable
 fun AppNavHost(startDestination: String = "login") {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = startDestination) {
+    NavHost(navController, startDestination) {
         composable("login") { LoginScreen(navController) }
         composable("dashboard") { DashboardScreen(navController) }
         composable("campus") { CampusInfoScreen(navController) }
@@ -163,9 +153,35 @@ fun AppNavHost(startDestination: String = "login") {
         composable("settings") { SettingsScreen(navController) }
     }
 }
+```
 
+---
 
-**Session Management**
+### 🗄️ Room Database (DAO)
+
+```kotlin
+@Dao
+interface AppDao {
+
+    @Query("SELECT * FROM tasks ORDER BY id DESC")
+    fun getAllTasks(): Flow<List<Task>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTask(task: Task)
+
+    @Update
+    suspend fun updateTask(task: Task)
+
+    @Delete
+    suspend fun deleteTask(task: Task)
+}
+```
+
+---
+
+### 🔐 Session Manager
+
+```kotlin
 class SessionManager(context: Context) {
 
     private val prefs = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
@@ -174,73 +190,70 @@ class SessionManager(context: Context) {
         prefs.edit().putString("username", username).apply()
     }
 
-    fun getUsername(): String? {
-        return prefs.getString("username", null)
-    }
+    fun getUsername(): String? = prefs.getString("username", null)
 
     fun logout() {
         prefs.edit().clear().apply()
     }
 }
+```
 
+---
 
-## 📸 Screenshots
+## 🎨 UI / UX Design
 
-Add your application screenshots here.
-Example:
-Login Screen
-Dashboard
-Campus Information
-Tasks Screen
-Announcements Screen
-Settings Screen
+### 🎨 Theme
 
-## 🚀 Getting Started
+* Cyan Accent: `#00BCD4`
+* Dark Background: `#0F0F0F`
+* Card Background: `#1A1A1A`
+* Text: White / Gray hierarchy
 
-**Prerequisites**
-- Android Studio Hedgehog (2023.1.1) or later
-- JDK 17
-- Android SDK API 34
+### ✨ Design System
 
-**Installation**
+* Material 3 components
+* Rounded cards (20–24dp)
+* Gradient background effects
+* Clean spacing system
+* Minimal modern layout
 
-1️⃣ Clone the repository
+---
+
+## 🚀 Setup Guide
+
+```bash
 git clone https://github.com/prince081605/CaseStudyPhase1.git
+```
 
-2️⃣ Open in Android Studio
-- Open the project folder in Android Studio.
+### Steps:
 
-3️⃣ Sync Gradle
-- Allow Android Studio to sync Gradle dependencies.
+1. Open in Android Studio (Ladybug+)
+2. Sync Gradle
+3. Run on Emulator / Device
 
-4️⃣ Run the Application
+---
 
-**Run on:**
-- Android Emulator
-- Physical Android Device
+## 🔑 Login Credentials
 
+| Username | Password |
+| -------- | -------- |
+| admin    | 1234     |
 
-## 🔑 Default Login Credentials
+---
 
-| Field    | Value  |
-|----------|--------|
-| Username | admin  |
-| Password | 1234   |
+## 🔮 Future Improvements
 
+* Firebase Authentication 🔐
+* Cloud Sync (Realtime DB)
+* Push Notifications (FCM)
+* Biometric Login
+* Multi-language Support
+* Full MVVM Architecture upgrade
 
-## 📝 Future Enhancements
-
-- Backend API authentication
-- Room Database for local storage
-- Firebase Cloud Messaging (push notifications)
-- Offline support
-- Biometric authentication
-- Dark / Light theme switch
-- Multi-language support
+---
 
 ## 👨‍💻 Developer
 
-- Mobile Development Case Study
-- Pamantasan ng Cabuyao
-- February 2026
-
+**Mobile Development Case Study**
+Pamantasan ng Cabuyao
+April 2026
