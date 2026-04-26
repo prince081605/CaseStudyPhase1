@@ -37,12 +37,13 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
     val progress = if (totalTasks > 0) completedTasks.toFloat() / totalTasks else 0f
 
     val latestAnnouncement = announcements.firstOrNull()
+    val unreadAnnouncements = announcements.count { !it.isRead }
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val drawerWidth = screenWidth * 0.6f
+    val drawerWidth = screenWidth * 0.75f
 
     val blackBg = Color(0xFF0F0F0F)
     val darkCard = Color(0xFF1A1A1A)
@@ -95,6 +96,13 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                     label = { Text("Tasks & Schedule") },
                     selected = false,
                     icon = { Icon(Icons.Default.Event, null) },
+                    badge = {
+                        if (pendingTasks > 0) {
+                            Badge(containerColor = cyan, contentColor = Color.Black) {
+                                Text("$pendingTasks")
+                            }
+                        }
+                    },
                     onClick = { navController.navigate("tasks") }
                 )
 
@@ -102,6 +110,13 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                     label = { Text("Announcements") },
                     selected = false,
                     icon = { Icon(Icons.Default.Campaign, null) },
+                    badge = {
+                        if (unreadAnnouncements > 0) {
+                            Badge(containerColor = red, contentColor = Color.White) {
+                                Text("$unreadAnnouncements")
+                            }
+                        }
+                    },
                     onClick = { navController.navigate("announcements") }
                 )
 
