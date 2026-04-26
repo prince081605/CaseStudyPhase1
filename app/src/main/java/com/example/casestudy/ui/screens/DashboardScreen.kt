@@ -2,8 +2,11 @@ package com.example.casestudy.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -132,7 +135,7 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                 NavigationDrawerItem(
                     label = { Text("Logout") },
                     selected = false,
-                    icon = { Icon(Icons.Default.Logout, null) },
+                    icon = { Icon(Icons.AutoMirrored.Filled.Logout, null) },
                     onClick = {
                         sessionManager.logout()
                         navController.navigate("login")
@@ -182,6 +185,7 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                     .fillMaxSize()
                     .background(blackBg)
                     .padding(padding)
+                    .verticalScroll(rememberScrollState())
                     .padding(16.dp)
             ) {
 
@@ -221,7 +225,42 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                     }
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(24.dp))
+
+                // Stats Overview Section
+                Text("Your Progress", color = white, style = MaterialTheme.typography.titleSmall)
+                Spacer(Modifier.height(8.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Card(
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = darkCard)
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text("Pending", color = Color.Gray, style = MaterialTheme.typography.labelMedium)
+                            Text("$pendingTasks", color = white, style = MaterialTheme.typography.headlineMedium)
+                        }
+                    }
+                    Card(
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = darkCard)
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text("Completed", color = Color.Gray, style = MaterialTheme.typography.labelMedium)
+                            Text("$completedTasks", color = cyan, style = MaterialTheme.typography.headlineMedium)
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                Text("Quick Access", color = white, style = MaterialTheme.typography.titleSmall)
+                Spacer(Modifier.height(8.dp))
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -361,6 +400,8 @@ fun DashboardScreen(navController: NavController, viewModel: MainViewModel) {
                         }
                     }
                 }
+                
+                Spacer(Modifier.height(32.dp))
             }
         }
     }
