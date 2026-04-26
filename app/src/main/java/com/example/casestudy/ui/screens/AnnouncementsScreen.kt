@@ -9,7 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,11 +30,13 @@ import com.example.casestudy.ui.viewmodel.MainViewModel
 fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) {
     val announcements by viewModel.announcements.collectAsState()
     var showUnreadOnly by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
-    val filteredAnnouncements = if (showUnreadOnly) {
-        announcements.filter { !it.isRead }
-    } else {
-        announcements
+    val filteredAnnouncements = announcements.filter {
+        val matchesSearch = it.title.contains(searchQuery, ignoreCase = true) || 
+                          it.content.contains(searchQuery, ignoreCase = true)
+        val matchesUnread = if (showUnreadOnly) !it.isRead else true
+        matchesSearch && matchesUnread
     }
 
     val blackBg = Color(0xFF0F0F0F)
@@ -74,7 +78,7 @@ fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) 
         },
         containerColor = blackBg
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -84,10 +88,41 @@ fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) 
                     )
                 )
         ) {
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search announcements...", color = Color.Gray) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = cyan) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear", tint = Color.Gray)
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = cyan,
+                    unfocusedBorderColor = Color.DarkGray,
+                    focusedTextColor = white,
+                    unfocusedTextColor = white,
+                    cursorColor = cyan
+                )
+            )
+
             if (filteredAnnouncements.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        if (showUnreadOnly) "All announcements caught up!" else "No announcements found.",
+                        text = when {
+                            searchQuery.isNotEmpty() -> "No matching announcements."
+                            showUnreadOnly -> "All caught up!"
+                            else -> "No announcements found."
+                        },
                         color = Color.Gray
                     )
                 }
@@ -95,8 +130,9 @@ fun AnnouncementsScreen(navController: NavController, viewModel: MainViewModel) 
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
                     items(filteredAnnouncements) { announcement ->
                         AnnouncementItem(

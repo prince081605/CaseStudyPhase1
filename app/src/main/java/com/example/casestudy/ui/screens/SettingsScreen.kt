@@ -146,7 +146,11 @@ fun SettingsScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SettingsCard(title = "App Info", icon = Icons.Default.Info, cyan = cyan, darkCard = darkCard) {
-                    Text("Version 1.0.0", color = grayText)
+                    Column {
+                        Text("Version 1.0.0", color = grayText)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("System Status: Operational", color = Color(0xFF4CAF50), fontSize = 12.sp)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
